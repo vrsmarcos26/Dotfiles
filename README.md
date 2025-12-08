@@ -59,6 +59,8 @@ Execute o script: Clique com o botão direito no arquivo setup.ps1 e selecione "
 ```
 Aguarde: O script fará o download e instalação de tudo. Ao final, recomenda-se reiniciar o computador (especialmente por conta do Docker).
 
+### Após rodar o script, siga o guia de [Configurações Manuais]() para logar nas contas e ajustar a segurança fina.
+
 ## ✏️ Como Personalizar
 Este script foi feito para ser flexível. Se você quiser adicionar ou remover programas:
 
@@ -71,9 +73,12 @@ winget search "NomeDoPrograma"
 ### 4. Adicione o ID encontrado na lista desejada, mantendo a formatação entre aspas.
 
 ## 👤 Autor
+
 Marcos Vinícius Rocha Silva
+
 LinkedIn: [@vrsmarcos26](https://www.linkedin.com/in/vrsmarcos26/)
 GitHub: [@vrsmarcos26](https://github.com/vrsmarcos26/)
 
 📜 Licença
 Distribuído sob a licença MIT. Sinta-se à vontade para fazer um fork e adaptar para suas necessidades.
+[LICENSE](LICENSE)
