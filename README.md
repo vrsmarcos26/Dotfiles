@@ -45,21 +45,26 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 ### 2. Baixar e Executar
 Você pode clonar o repositório ou apenas baixar o arquivo .ps1.
 
-Clone o repositório:
+1.  **Clone o repositório:**
+    ```bash
+    git clone [https://github.com/vrsmarcos26/dotfiles.git](https://github.com/vrsmarcos26/dotfiles.git)
+    ```
 
-```
-git clone [https://github.com/vrsmarcos26/dotfiles.git](https://github.com/vrsmarcos26/dotfiles.git)
-cd dotfiles
-```
+2.  **Acesse a pasta do Windows e execute:**
+    ```powershell
+    cd dotfiles\Windows
+    .\setup_completo.ps1
+    ```
 
-Execute o script: Clique com o botão direito no arquivo setup.ps1 e selecione "Executar com o PowerShell" ou rode via terminal:
+3. Execute o script: Clique com o botão direito no arquivo setup.ps1 e selecione "Executar com o PowerShell" ou rode via terminal:
 
-```
-.\setup.ps1
-```
+    ```
+    .\setup.ps1
+    ```
+    
 Aguarde: O script fará o download e instalação de tudo. Ao final, recomenda-se reiniciar o computador (especialmente por conta do Docker).
 
-### Após rodar o script, siga o guia de [Configurações Manuais]() para logar nas contas e ajustar a segurança fina.
+### Após rodar o script, siga o guia de [Configurações Manuais (Windows)](./Windows/Configuracoes-Manuais.md) para logar nas contas e ajustar a segurança fina.
 
 ## ✏️ Como Personalizar
 Este script foi feito para ser flexível. Se você quiser adicionar ou remover programas:
