@@ -76,15 +76,48 @@ Instalar-Lista "DESENVOLVIMENTO" $AppsDev
 Instalar-Lista "LAZER" $AppsLazer
 
 # ==============================================================================
-# 🛠️ CONFIGURAÇÕES DO WINDOWS
+# 🛠️ CONFIGURAÇÕES DO WINDOWS (Hardening & Visual)
 # ==============================================================================
 Write-Host "`n>>> Aplicando configuracoes do Windows..." -ForegroundColor Magenta
 
+# --- EXPLORER & VISUALIZAÇÃO ---
+Write-Host "Configurando Explorer e Area de Trabalho..."
 # Exibir extensões de arquivos
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 0
-
 # Exibir arquivos ocultos
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value 1
+# Ocultar icones da Area de Trabalho (Desktop limpo)
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideIcons" -Value 1
+
+# --- TEMA ESCURO (DARK MODE) ---
+Write-Host "Ativando Modo Escuro..."
+# Modo Escuro para Apps
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0
+# Modo Escuro para Sistema (Barra de tarefas etc)
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 0
+
+# --- BARRA DE TAREFAS (Windows 11) ---
+Write-Host "Ajustando Barra de Tarefas..."
+# Ocultar Pesquisa na Barra de Tarefas (0 = Oculto, 1 = Ícone, 2 = Caixa)
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 0
+# Ocultar Widgets
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value 0
+# Alinhamento da Barra de Tarefas (1 = Centro, 0 = Esquerda)
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 1
+# Ocultar Automaticamente a Barra de Tarefas (1 = Ocultar, 0 = Fixa)
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3" -Name "Settings" -Value ([byte[]](0x30,0x00,0x00,0x00,0xfe,0xff,0xff,0xff,0x03,0x00,0x00,0x00,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00))
+
+# --- WINDOWS UPDATE & OTIMIZAÇÃO ---
+Write-Host "Configurando Windows Update..."
+# Atualizar outros produtos Microsoft (Office etc) - Requer criação de chave se não existir
+if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Services\Default")) {
+    New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Services\Default" -Force | Out-Null
+}
+# Otimização de Entrega: Permitir downloads da Rede Local (LAN) - 1 = LAN, 2 = Internet, 3 = Simple (0 = Off)
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" -Name "DODownloadMode" -Value 1 -ErrorAction SilentlyContinue
+
+# Nota: Algumas configs de Windows Update como "Obter assim que disponivel" são complexas via registro e variam por build.
+# A melhor prática é configurar a GPO local ou deixar manual no 'Configuracoes-Manuais.md' se falhar aqui.
 
 # Reinicia o Explorer
 Write-Host "Reiniciando Explorer para aplicar mudancas..." -ForegroundColor Cyan
