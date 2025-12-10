@@ -56,7 +56,7 @@ O módulo Windows utiliza **PowerShell** e **Winget** para instalar as versões 
 Abra o PowerShell como **Administrador** e execute:
 
 ```
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
 ```
 (Digite `S` ou `Y` para confirmar se solicitado.)
 
