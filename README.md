@@ -67,7 +67,7 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
 Como o Windows vem limpo, instale o Git rapidamente via Winget para poder baixar o repositório:
 
 ```
-winget install --id Git.Git -e --source winget
+winget install --id Git.Git -e --source winget; Start-Process powershell -Verb RunAs; exit
 ```
 
 ⚠️ Importante: Após o Git instalar, feche e abra o PowerShell novamente para que o comando git seja reconhecido.
