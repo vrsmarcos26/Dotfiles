@@ -17,7 +17,8 @@ $AppsSecurity = @(
     "Brave.Brave",                  # Navegador Seguro
     "Proton.ProtonVPN",             # VPN
     "Bitwarden.Bitwarden",          # Gerenciador de Senhas
-    "Malwarebytes.Malwarebytes"     # Scanner de Segunda Opinião
+    "Malwarebytes.Malwarebytes",    # Scanner de Segunda Opinião
+    "Filen.Filen"                   # Backup automatico
 )
 
 $AppsDev = @(
