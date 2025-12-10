@@ -57,28 +57,60 @@ Abra o PowerShell como **Administrador** e execute:
 
 ```
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-(Digite `S` ou `Y` para confirmar se solicitado.)
 ```
+(Digite `S` ou `Y` para confirmar se solicitado.)
 
 ---
 
-### **2. Baixar e Executar**
+### **2. Pré-requisito (Instalar o Git)**
+
+Como o Windows vem limpo, instale o Git rapidamente via Winget para poder baixar o repositório:
 
 ```
-git clone https://github.com/vrsmarcos26/dotfiles.git
+winget install --id Git.Git -e --source winget
+```
+
+⚠️ Importante: Após o Git instalar, feche e abra o PowerShell novamente para que o comando git seja reconhecido.
+
+---
+
+### **3. Baixar e Executar**
+
+Agora que o git está instalado, execute:
+
+```
+git clone [https://github.com/vrsmarcos26/dotfiles.git](https://github.com/vrsmarcos26/dotfiles.git)
 cd dotfiles\Windows
 .\setup_completo.ps1
 ```
 
 ---
 
-### **3. Pós-Instalação**
+(O script vai detectar que o Git já está instalado e apenas pular para os próximos apps).
 
-Após o script finalizar, leia o arquivo **Configurações-Manuais.md** para:
+### **4. Pós-Instalação**
 
-- Realizar logins nas ferramentas;  
-- Verificar backups;  
-- Ajustar configurações avançadas de segurança.  
+Após o script finalizar, leia o guia de Configurações Manuais (Windows) para realizar logins, verificar backups e ajustar a segurança fina. 
+
+---
+
+## ⚠️ Solução de Problemas (Troubleshooting)
+
+### Opção Alternativa: Baixar ZIP (Sem Git)
+
+Se não quiser instalar o Git manualmente antes, você pode baixar o ZIP do projeto, mas precisará desbloquear o arquivo:
+
+1. Baixe o ZIP e extraia.
+
+2. Abra o PowerShell na pasta Windows.
+
+3. Execute o comando para desbloquear o arquivo (necessário para scripts baixados via navegador):
+
+```
+Unblock-File -Path .\setup_completo.ps1
+```
+
+4. Execute: ```.\setup_completo.ps1```
 
 ---
 

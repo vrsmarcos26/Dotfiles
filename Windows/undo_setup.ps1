@@ -16,7 +16,8 @@ $AppsSecurity = @(
     "Brave.Brave",
     "Proton.ProtonVPN",
     "Bitwarden.Bitwarden",
-    "Malwarebytes.Malwarebytes"
+    "Malwarebytes.Malwarebytes",
+    "Filen.Filen" 
 )
 
 $AppsDev = @(
