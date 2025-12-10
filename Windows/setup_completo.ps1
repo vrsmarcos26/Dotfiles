@@ -25,7 +25,7 @@ $AppsDev = @(
     "Python.Python.3.12",           # Python (Versão estável)
     "Git.Git",                      # Controle de Versão
     "Google.AndroidStudio",         # Dev Android
-    "Docker.DockerDesktop",         # Containers
+    "Docker.DockerDesktop"         # Containers
 )
 
 $AppsLazer = @(
