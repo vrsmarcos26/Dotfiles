@@ -79,7 +79,7 @@ winget install --id Git.Git -e --source winget
 Agora que o git está instalado, execute:
 
 ```
-git clone [https://github.com/vrsmarcos26/dotfiles.git](https://github.com/vrsmarcos26/dotfiles.git)
+git clone https://github.com/vrsmarcos26/Dotfiles.git
 cd dotfiles\Windows
 .\setup_completo.ps1
 ```
