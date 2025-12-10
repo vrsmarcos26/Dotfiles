@@ -55,21 +55,36 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     Exit
 }
 
+# 🔍 Verificação de Pré-requisitos (Winget)
+Write-Host "🔍 Verificando se o Winget está instalado..." -ForegroundColor Cyan
+if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+    Write-Host "❌ ERRO CRÍTICO: O 'Winget' não foi encontrado neste sistema." -ForegroundColor Red
+    Write-Host "O Windows Sandbox ou versões desatualizadas do Windows não possuem o Winget nativo."
+    Write-Host "Por favor, instale o 'App Installer' na Microsoft Store ou atualize o Windows."
+    Read-Host "Pressione Enter para sair..."
+    Exit
+} else {
+    Write-Host "✅ Winget detectado com sucesso!" -ForegroundColor Green
+}
+
 # Executando as Instalações
 Instalar-Lista "🔒 SEGURANÇA" $AppsSecurity
 Instalar-Lista "💻 DESENVOLVIMENTO" $AppsDev
 Instalar-Lista "🎮 LAZER" $AppsLazer
 
-# ==============================================================================
+## ==============================================================================
 # 🛠️ CONFIGURAÇÕES EXTRAS DO WINDOWS (Hardening)
 # ==============================================================================
 Write-Host "`n🔧 Aplicando configurações do Windows..." -ForegroundColor Magenta
 
-# Exibir extensões de arquivos (Segurança essencial)
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 0
+# 1. Configura o Registro
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 0 # EXTENÇÕES
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value 1 # OCULTAR
 
-# Exibir arquivos ocultos
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value 1
+# 2. Reinicia o Explorer para aplicar as mudanças IMEDIATAMENTE
+Write-Host "🔄 Reiniciando o Explorer para aplicar mudanças visuais..." -ForegroundColor Cyan
+Stop-Process -Name explorer -Force
+Start-Sleep -s 2 # Dá um tempo para o Explorer voltar
 
 Write-Host "`n✅ SETUP CONCLUÍDO COM SUCESSO!" -ForegroundColor Green
 Write-Host "Nota: O Docker e o Android Studio podem exigir logoff ou reinicialização."
