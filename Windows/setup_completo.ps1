@@ -32,7 +32,7 @@ $AppsSecurity = @(
     "Proton.ProtonVPN",             # VPN
     "Bitwarden.Bitwarden",          # Gerenciador de Senhas
     "Malwarebytes.Malwarebytes",    # Scanner de Segunda Opinião
-    "Filen.Filen"                   # Backup automatico
+    "FilenCloud.FilenSync"          # Backup automatico
 )
 
 $AppsDev = @(
@@ -155,5 +155,6 @@ if (Test-Path $ArquivoOrigem) {
 } else {
     Write-Host "Arquivo 'auto_update.bat' nao encontrado. Pulei esta etapa." -ForegroundColor Red
 }
+
 
 Read-Host "Pressione Enter para sair..."
