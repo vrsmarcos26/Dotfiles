@@ -22,7 +22,7 @@ $AppsSecurity = @(
     "Proton.ProtonVPN",
     "Bitwarden.Bitwarden",
     "Malwarebytes.Malwarebytes",
-    "Filen.Filen" 
+    "FilenCloud.FilenSync" 
 )
 
 $AppsDev = @(
