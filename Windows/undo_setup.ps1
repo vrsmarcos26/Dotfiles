@@ -30,7 +30,8 @@ $AppsDev = @(
     "Python.Python.3.12",
     "Git.Git",
     "Google.AndroidStudio",
-    "Docker.DockerDesktop"
+    "Docker.DockerDesktop",
+    "ArduinoSA.IDE.stable"
 )
 
 $AppsLazer = @(
