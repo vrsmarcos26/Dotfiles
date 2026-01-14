@@ -32,7 +32,7 @@ $AppsSecurity = @(
     "Proton.ProtonVPN",             # VPN
     "Bitwarden.Bitwarden",          # Gerenciador de Senhas
     "Malwarebytes.Malwarebytes",    # Scanner de Segunda Opinião
-    "FilenCloud.FilenSync"          # Backup automatico
+    "Filen.Filen"                   # Backup automatico
 )
 
 $AppsDev = @(
@@ -40,7 +40,9 @@ $AppsDev = @(
     "Python.Python.3.12",           # Python (Versão estável)
     "Git.Git",                      # Controle de Versão
     "Google.AndroidStudio",         # Dev Android
-    "Docker.DockerDesktop"          # Containers
+    "Docker.DockerDesktop",         # Containers
+    "RARLab.WinRAR",                # Compactados
+    "Arduino.IDE"                   # IDE Arduino
 )
 
 $AppsLazer = @(
@@ -63,6 +65,92 @@ function Instalar-Lista ($NomeLista, $ArrayApps) {
     }
 }
 
+# Função Especial para o Office 2024 (LTSC)
+function Instalar-Office {
+    Write-Host "`n>>> Iniciando instalacao do Microsoft Office 2024..." -ForegroundColor Cyan
+    
+    $OfficeDir = "C:\OfficeTemp"
+    # Link oficial direto da Microsoft (Download Center)
+    $ToolUrl = "https://download.microsoft.com/download/6c1eeb25-cf8b-41d9-8d0d-cc1dbc032140/officedeploymenttool_19426-20170.exe"
+    
+    $ToolFile = "$OfficeDir\officedeploymenttool.exe"
+    $ConfigFile = "$OfficeDir\config.xml"
+    $RealSetupFile = "$OfficeDir\setup.exe" # O arquivo que será extraído
+
+    # 1. Cria diretório temporário
+    if (!(Test-Path $OfficeDir)) { New-Item -ItemType Directory -Force -Path $OfficeDir | Out-Null }
+
+    # 2. Baixa a Ferramenta de Implantação (O Extrator)
+    Write-Host "Baixando Office Deployment Tool..." -ForegroundColor Yellow
+    try {
+        Invoke-WebRequest -Uri $ToolUrl -OutFile $ToolFile
+    } catch {
+        Write-Host "ERRO FATAL: Nao foi possivel baixar o ODT. Verifique sua internet." -ForegroundColor Red
+        return
+    }
+
+    # 3. Extrai o setup.exe real da ferramenta
+    Write-Host "Extraindo arquivos de instalacao..." -ForegroundColor Yellow
+    # O argumento /extract:PATH /quiet extrai sem perguntar nada
+    $ExtractProcess = Start-Process -FilePath $ToolFile -ArgumentList "/quiet /extract:$OfficeDir" -Wait -PassThru
+    
+    if (!(Test-Path $RealSetupFile)) {
+        Write-Host "ERRO: Falha ao extrair o setup.exe. Verifique se o antivirus bloqueou." -ForegroundColor Red
+        return
+    }
+
+    # 4. Cria o arquivo XML de configuração
+    Write-Host "Gerando arquivo de configuracao XML..." -ForegroundColor Yellow
+    $XmlContent = @"
+<Configuration ID="9a05e267-2fa9-4ce8-9ea3-edf4ff84f3ec">
+  <Add OfficeClientEdition="64" Channel="PerpetualVL2024">
+    <Product ID="ProPlus2024Volume" PIDKEY="XJ2XN-FW8RK-P4HMP-DKDBV-GCVGB">
+      <Language ID="pt-br" />
+      <Language ID="en-us" />
+      <Language ID="es-es" />
+      <ExcludeApp ID="Access" />
+      <ExcludeApp ID="Lync" />
+      <ExcludeApp ID="OneDrive" />
+      <ExcludeApp ID="OneNote" />
+      <ExcludeApp ID="Outlook" />
+      <ExcludeApp ID="Publisher" />
+    </Product>
+    <Product ID="ProofingTools">
+      <Language ID="en-us" />
+    </Product>
+  </Add>
+  <Property Name="SharedComputerLicensing" Value="0" />
+  <Property Name="FORCEAPPSHUTDOWN" Value="FALSE" />
+  <Property Name="DeviceBasedLicensing" Value="0" />
+  <Property Name="SCLCacheOverride" Value="0" />
+  <Property Name="AUTOACTIVATE" Value="1" />
+  <Updates Enabled="TRUE" />
+  <RemoveMSI />
+  <AppSettings>
+    <User Key="software\microsoft\office\16.0\excel\options" Name="defaultformat" Value="51" Type="REG_DWORD" App="excel16" Id="L_SaveExcelfilesas" />
+    <User Key="software\microsoft\office\16.0\powerpoint\options" Name="defaultformat" Value="27" Type="REG_DWORD" App="ppt16" Id="L_SavePowerPointfilesas" />
+    <User Key="software\microsoft\office\16.0\word\options" Name="defaultformat" Value="" Type="REG_SZ" App="word16" Id="L_SaveWordfilesas" />
+  </AppSettings>
+  <Display Level="None" AcceptEULA="TRUE" />
+</Configuration>
+"@
+    Set-Content -Path $ConfigFile -Value $XmlContent
+
+    # 5. Executa a Instalação com o setup.exe extraído
+    Write-Host "Executando instalacao do Office (Isso pode demorar)..." -ForegroundColor Yellow
+    $Process = Start-Process -FilePath $RealSetupFile -ArgumentList "/configure config.xml" -WorkingDirectory $OfficeDir -Wait -PassThru
+
+    if ($Process.ExitCode -eq 0) {
+        Write-Host "Office instalado com sucesso!" -ForegroundColor Green
+    } else {
+        Write-Host "Erro na instalacao do Office. Codigo: $($Process.ExitCode)" -ForegroundColor Red
+    }
+
+    # 6. Limpeza
+    Write-Host "Limpando arquivos temporarios..."
+    Remove-Item -Path $OfficeDir -Recurse -Force -ErrorAction SilentlyContinue
+}
+
 # Verificação de Administrador
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
     Write-Host "POR FAVOR, EXECUTE ESTE SCRIPT COMO ADMINISTRADOR!" -ForegroundColor Red
@@ -70,10 +158,13 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     Exit
 }
 
-# Executando as Instalações (REMOVIDOS EMOJIS E ACENTOS PARA EVITAR BUGS)
+# Executando as Instalações
 Instalar-Lista "SEGURANCA" $AppsSecurity
 Instalar-Lista "DESENVOLVIMENTO" $AppsDev
 Instalar-Lista "LAZER" $AppsLazer
+
+# Instalação do Office Dedicada
+Instalar-Office
 
 # ==============================================================================
 # 🛠️ CONFIGURAÇÕES DO WINDOWS (Hardening & Visual)
@@ -105,7 +196,7 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer
 # Alinhamento da Barra de Tarefas (1 = Centro, 0 = Esquerda)
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 1
 # Ocultar Automaticamente a Barra de Tarefas (1 = Ocultar, 0 = Fixa)
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3" -Name "Settings" -Value ([byte[]](0x30,0x00,0x00,0x00,0xfe,0xff,0xff,0xff,0x03,0x00,0x00,0x00,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00))
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3" -Name "Settings" -Value ([byte[]](0x30,0x00,0x00,0x00,0xfe,0xff,0xff,0xff,0x03,0x00,0x00,0x00,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00))
 
 # --- WINDOWS UPDATE & OTIMIZAÇÃO ---
 Write-Host "Configurando Windows Update..."
@@ -113,11 +204,8 @@ Write-Host "Configurando Windows Update..."
 if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Services\Default")) {
     New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Services\Default" -Force | Out-Null
 }
-# Otimização de Entrega: Permitir downloads da Rede Local (LAN) - 1 = LAN, 2 = Internet, 3 = Simple (0 = Off)
+# Otimização de Entrega: Permitir downloads da Rede Local (LAN) - 1 = LAN
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" -Name "DODownloadMode" -Value 1 -ErrorAction SilentlyContinue
-
-# Nota: Algumas configs de Windows Update como "Obter assim que disponivel" são complexas via registro e variam por build.
-# A melhor prática é configurar a GPO local ou deixar manual no 'Configuracoes-Manuais.md' se falhar aqui.
 
 # Reinicia o Explorer
 Write-Host "Reiniciando Explorer para aplicar mudancas..." -ForegroundColor Cyan
@@ -155,6 +243,5 @@ if (Test-Path $ArquivoOrigem) {
 } else {
     Write-Host "Arquivo 'auto_update.bat' nao encontrado. Pulei esta etapa." -ForegroundColor Red
 }
-
 
 Read-Host "Pressione Enter para sair..."
