@@ -22,7 +22,7 @@ $AppsSecurity = @(
     "Proton.ProtonVPN",
     "Bitwarden.Bitwarden",
     "Malwarebytes.Malwarebytes",
-    "FilenCloud.FilenSync" 
+    "Filen.Filen" 
 )
 
 $AppsDev = @(
@@ -31,7 +31,8 @@ $AppsDev = @(
     "Git.Git",
     "Google.AndroidStudio",
     "Docker.DockerDesktop",
-    "ArduinoSA.IDE.stable"
+    "RARLab.WinRAR",                
+    "Arduino.IDE"                   
 )
 
 $AppsLazer = @(
@@ -57,7 +58,7 @@ Write-Host "================================================================" -F
 Write-Host "                   MODO DE DESTRUICAO (ROLLBACK)                " -ForegroundColor Red
 Write-Host "================================================================" -ForegroundColor Red
 Write-Host "Este script ira:"
-Write-Host "1. Desinstalar TODOS os programas listados no script de setup."
+Write-Host "1. Desinstalar TODOS os programas listados (incluindo Office 2024)."
 Write-Host "2. Excluir a tarefa agendada 'AutoUpdateSemanal'."
 Write-Host "3. Apagar a pasta C:\Scripts permanentemente."
 Write-Host "4. Reverter configuracoes de visualizacao e tema para o padrao (Claro)."
@@ -82,9 +83,52 @@ function Desinstalar-Lista ($NomeLista, $ArrayApps) {
     }
 }
 
+function Desinstalar-Office {
+    Write-Host "`n>>> Removendo Microsoft Office 2024..." -ForegroundColor Magenta
+    
+    $OfficeDir = "C:\OfficeTempRemove"
+    $ToolUrl = "https://download.microsoft.com/download/6c1eeb25-cf8b-41d9-8d0d-cc1dbc032140/officedeploymenttool_19426-20170.exe"
+    
+    $ToolFile = "$OfficeDir\officedeploymenttool.exe"
+    $ConfigFile = "$OfficeDir\remove.xml"
+    $RealSetupFile = "$OfficeDir\setup.exe"
+
+    if (!(Test-Path $OfficeDir)) { New-Item -ItemType Directory -Force -Path $OfficeDir | Out-Null }
+
+    # Baixa o Extrator
+    Write-Host "Baixando ferramenta de remocao..."
+    Invoke-WebRequest -Uri $ToolUrl -OutFile $ToolFile
+
+    # Extrai o setup.exe
+    Write-Host "Extraindo arquivos..."
+    Start-Process -FilePath $ToolFile -ArgumentList "/quiet /extract:$OfficeDir" -Wait
+
+    if (!(Test-Path $RealSetupFile)) {
+        Write-Host "ERRO: Falha ao extrair setup.exe para remocao." -ForegroundColor Red
+        return
+    }
+
+    # Cria XML de Remoção
+    $XmlContent = @"
+<Configuration>
+  <Remove All="TRUE" />
+  <Display Level="None" AcceptEULA="TRUE" />
+</Configuration>
+"@
+    Set-Content -Path $ConfigFile -Value $XmlContent
+
+    Write-Host "Executando desinstalacao do Office..."
+    Start-Process -FilePath $RealSetupFile -ArgumentList "/configure remove.xml" -WorkingDirectory $OfficeDir -Wait
+
+    # Limpeza
+    Remove-Item -Path $OfficeDir -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Host "Office removido." -ForegroundColor Green
+}
+
 Desinstalar-Lista "SEGURANCA" $AppsSecurity
 Desinstalar-Lista "DESENVOLVIMENTO" $AppsDev
 Desinstalar-Lista "LAZER" $AppsLazer
+Desinstalar-Office
 
 # ==============================================================================
 # 🧹 LIMPEZA DO SISTEMA
@@ -117,15 +161,9 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\P
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 1
 
 # Reverter Barra de Tarefas (Padrão)
-# Mostrar Pesquisa (Caixa de Pesquisa = 2 no Win10, ou 1 no Win11 padrão depende da build)
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 1
-# Mostrar Widgets (Se existir)
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value 1
-# Alinhamento da Barra de Tarefas (Centro = 1 é padrão no 11, mas se quiser voltar pra Esquerda use 0)
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 1
-# Fixar Barra de Tarefas (Não ocultar auto)
-# Nota: O valor binário original é complexo, removemos a chave 'Settings' do StuckRects3 para resetar ou editamos apenas o bit.
-# Para simplificar o rollback, vamos tentar forçar o comportamento padrão via script não binário se possível, ou ignorar se não crítico.
 
 # Reinicia o Explorer
 Write-Host "Reiniciando Explorer para aplicar mudancas..." -ForegroundColor Cyan
