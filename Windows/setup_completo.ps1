@@ -196,7 +196,7 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer
 # Alinhamento da Barra de Tarefas (1 = Centro, 0 = Esquerda)
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 1
 # Ocultar Automaticamente a Barra de Tarefas (1 = Ocultar, 0 = Fixa)
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3" -Name "Settings" -Value ([byte[]](0x30,0x00,0x00,0x00,0xfe,0xff,0xff,0xff,0x03,0x00,0x00,0x00,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00))
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3" -Name "Settings" -Value ([byte[]](0x30,0x00,0x00,0x00,0xfe,0xff,0xff,0xff,0x03,0x00,0x00,0x00,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00))
 
 # --- WINDOWS UPDATE & OTIMIZAÇÃO ---
 Write-Host "Configurando Windows Update..."
@@ -219,29 +219,40 @@ Write-Host "Atualizando programas pre-existentes..." -ForegroundColor Blue
 winget upgrade --all --include-unknown --accept-source-agreements --silent
 
 # ==============================================================================
-# 🔄 CONFIGURAÇÃO DE UPDATE AUTOMÁTICO
+# 🔄 CONFIGURAÇÃO DE UPDATE AUTOMÁTICO (SEM ARQUIVO .BAT)
 # ==============================================================================
 Write-Host "`n>>> Configurando atualizacao automatica semanal..." -ForegroundColor Magenta
 
-$DestinoScripts = "C:\Scripts"
-$ArquivoOrigem = "$PSScriptRoot\auto_update.bat"
-$ArquivoDestino = "$DestinoScripts\auto_update.bat"
+# Habilita proteção do sistema no C: (necessário para Checkpoint-Computer)
+Enable-ComputerRestore -Drive "C:\" -ErrorAction SilentlyContinue
 
-if (Test-Path $ArquivoOrigem) {
-    if (!(Test-Path -Path $DestinoScripts)) { 
-        New-Item -ItemType Directory -Force -Path $DestinoScripts | Out-Null 
-    }
+# Define o comando combinado: Cria Backup -> Atualiza Apps
+$ComandoPowerShell = "Checkpoint-Computer -Description 'AutoUpdate_Semanal' -RestorePointType MODIFY_SETTINGS; winget upgrade --all --include-unknown --accept-source-agreements --accept-package-agreements --silent"
 
-    Copy-Item -Path $ArquivoOrigem -Destination $ArquivoDestino -Force
+$Trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Wednesday -At 8pm
+# Executa o powershell de forma oculta (Hidden) rodando o comando acima
+$Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-ExecutionPolicy Bypass -WindowStyle Hidden -Command `"$ComandoPowerShell`""
 
-    $Trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Wednesday -At 9pm
-    $Action = New-ScheduledTaskAction -Execute $ArquivoDestino
-    
-    Register-ScheduledTask -TaskName "AutoUpdateSemanal" -Trigger $Trigger -Action $Action -Description "Atualiza softwares via Winget" -User "System" -RunLevel Highest -Force | Out-Null
-    
-    Write-Host "Tarefa 'AutoUpdateSemanal' criada com sucesso!" -ForegroundColor Green
+Register-ScheduledTask -TaskName "AutoUpdateSemanal" -Trigger $Trigger -Action $Action -Description "Atualiza softwares via Winget com Ponto de Restauracao" -User "System" -RunLevel Highest -Force | Out-Null
+
+Write-Host "Tarefa 'AutoUpdateSemanal' criada com sucesso (Direto no Agendador)!" -ForegroundColor Green
+
+# ==============================================================================
+# 🔑 ATIVAÇÃO DO WINDOWS / OFFICE
+# ==============================================================================
+Write-Host "`n========================================================" -ForegroundColor Cyan
+Write-Host "           VERIFICACAO DE ATIVACAO (MAS TOOL)           " -ForegroundColor Cyan
+Write-Host "========================================================" -ForegroundColor Cyan
+Write-Host "Deseja verificar o status de ativacao do Windows/Office agora?"
+Write-Host "Isso abrira o menu do Microsoft Activation Scripts (MAS)."
+$RespAtivacao = Read-Host "Digite [S] para Sim ou [Enter] para Pular"
+
+if ($RespAtivacao -eq "S" -or $RespAtivacao -eq "s") {
+    Write-Host "Abrindo MAS Tool..." -ForegroundColor Yellow
+    # Executa o comando web do MAS
+    iex (irm https://get.activated.win)
 } else {
-    Write-Host "Arquivo 'auto_update.bat' nao encontrado. Pulei esta etapa." -ForegroundColor Red
+    Write-Host "Pulando ativacao." -ForegroundColor Gray
 }
 
 Read-Host "Pressione Enter para sair..."
