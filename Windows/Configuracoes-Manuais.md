@@ -60,17 +60,17 @@ Ajustes para maximizar a detecção e minimizar o incômodo:
 
 ## 🔄 3. Automação e Backup (Verificação)
 
-Como o script de instalação configurou uma rotina de atualização automática e backup, é crucial verificar se o Windows permitiu essas configurações.
+O script de instalação configura uma rotina automática. Apenas verifique se o Windows aceitou as configurações.
 
-### 🛡️ Configurar Proteção do Sistema (Ponto de Restauração)
-O script de atualização tenta criar um backup antes de rodar. Para isso funcionar, o Windows precisa ter espaço reservado.
+### 🛡️ Verificar Espaço da Proteção do Sistema (Ponto de Restauração)
+O script deve ter reservado 10GB automaticamente. Vamos apenas confirmar:.
 
 1.  Pressione `Win + R`, digite `sysdm.cpl` e dê Enter.
 2.  Vá na aba **Proteção do Sistema**.
 3.  Selecione o **Disco Local (C:)** e clique no botão **Configurar**.
-4.  **Configurações de Restauração:** Marque a opção **"Ativar a proteção do sistema"**.
-5.  **Uso do Espaço em Disco:** Arraste o controle deslizante até atingir aproximadamente **10 GB** (ou cerca de 5% a 10% do disco).
-    * *Isso garante que o sistema tenha espaço para guardar os backups semanais sem lotar seu HD.*
+   4. * [ ] Confirme se **"Ativar a proteção do sistema"** está marcado.
+   5. * [ ] Confirme se o **Uso Atual** ou o **Limite Máximo** está em torno de **10GB** (10%).
+* *Se estiver em 0% ou muito baixo, aumente manualmente para garantir os backups.*
 6.  Clique em **Aplicar** e **OK**.
 
 ### 📅 Verificar o Agendador de Tarefas
@@ -80,11 +80,38 @@ Confirme se a tarefa de atualização foi criada corretamente pelo script.
 2.  Clique em **Biblioteca do Agendador de Tarefas** (lado esquerdo).
 3.  Procure na lista central pela tarefa: `AutoUpdateSemanal`.
 4.  Clique duas vezes nela e verifique:
-    * [ ] **Aba Disparadores:** Deve estar agendado para **"Semanalmente"**, toda **Quarta-feira** às **21:00**.
-    * [ ] **Aba Ações:** Deve apontar para iniciar um programa em `C:\Scripts\auto_update.bat`.
+    * [ ] **Aba Disparadores:** Deve estar agendado para **"Semanalmente"**, toda **Quarta-feira** às **20:00**.
+    * [ ] **Aba Ações:** O programa será `powershell.exe` e nos argumentos haverá um comando longo começando com `-ExecutionPolicy Bypass...`.
     * [ ] **Aba Geral:** Deve estar marcado **"Executar com privilégios mais altos"** (necessário para o Winget e o Ponto de Restauração funcionarem).
 
 ---
 
+## 🌐 4. Rede e Conectividade (DNS)
+
+O script configura o Windows para usar os servidores da Cloudflare (1.1.1.1) em todos os adaptadores ativos no momento da instalação.
+
+### 🛡️ Validação do DNS
+Confirme se a alteração foi aplicada corretamente e se não há conflitos de rede.
+
+1.  Pressione `Win + X` e selecione **Terminal** ou **PowerShell**.
+2.  Digite o comando `ipconfig /all` e procure pelo seu adaptador de rede principal (Wi-Fi ou Ethernet).
+3.  Verifique a linha **Servidores DNS**:
+    - [ ] Deve constar: `1.1.1.1` (Primário)
+    - [ ] Deve constar: `1.0.0.1` (Secundário)
+
+### ⚠️ Solução de Problemas (Sem Internet?)
+O uso de DNS fixo pode bloquear a conexão em **redes corporativas** (que usam DNS interno) ou **redes públicas com login** (hotéis, aeroportos, cafeterias com portal cativo).
+
+Se você perder a conexão nessas situações:
+1.  Pressione `Win + R`, digite `ncpa.cpl` e dê Enter.
+2.  Clique com o botão direito no adaptador conectado -> **Propriedades**.
+3.  Selecione **Protocolo IP Versão 4 (TCP/IPv4)** -> **Propriedades**.
+4.  [ ] Marque a opção: **"Obter o endereço dos servidores DNS automaticamente"**.
+
+> **Nota:** O script de *Rollback* faz essa reversão para o automático (DHCP) se for executado.
+
+---
+
 ## ✅ Finalização
+
 - [ ] Reiniciar o computador para garantir que todas as alterações de drivers (VPN) e serviços (Docker/System) sejam aplicadas.
