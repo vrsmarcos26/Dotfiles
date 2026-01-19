@@ -65,7 +65,9 @@ function Instalar-Lista ($NomeLista, $ArrayApps) {
     }
 }
 
-# Função Especial para o Office 2024 (LTSC)
+# ==============================================================================
+# 📚 INSTALAR PACOTE OFFICE
+# ==============================================================================
 function Instalar-Office {
     Write-Host "`n>>> Iniciando instalacao do Microsoft Office 2024..." -ForegroundColor Cyan
     
@@ -187,7 +189,7 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\P
 # Modo Escuro para Sistema (Barra de tarefas etc)
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 0
 
-# --- BARRA DE TAREFAS (Windows 11) ---
+# --- BARRA DE TAREFAS ---
 Write-Host "Ajustando Barra de Tarefas..."
 # Ocultar Pesquisa na Barra de Tarefas (0 = Oculto, 1 = Ícone, 2 = Caixa)
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 0
@@ -195,10 +197,12 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" 
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value 0
 # Alinhamento da Barra de Tarefas (1 = Centro, 0 = Esquerda)
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 1
-# Ocultar Automaticamente a Barra de Tarefas (1 = Ocultar, 0 = Fixa)
+# Auto-Hide
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3" -Name "Settings" -Value ([byte[]](0x30,0x00,0x00,0x00,0xfe,0xff,0xff,0xff,0x03,0x00,0x00,0x00,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00))
 
-# --- WINDOWS UPDATE & OTIMIZAÇÃO ---
+# ==============================================================================
+# ⚙️ WINDOWS UPDATE & OTIMIZACAO
+# ==============================================================================
 Write-Host "Configurando Windows Update..."
 # Atualizar outros produtos Microsoft (Office etc) - Requer criação de chave se não existir
 if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Services\Default")) {
@@ -236,6 +240,26 @@ $Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-Executio
 Register-ScheduledTask -TaskName "AutoUpdateSemanal" -Trigger $Trigger -Action $Action -Description "Atualiza softwares via Winget com Ponto de Restauracao" -User "System" -RunLevel Highest -Force | Out-Null
 
 Write-Host "Tarefa 'AutoUpdateSemanal' criada com sucesso (Direto no Agendador)!" -ForegroundColor Green
+
+# ==============================================================================
+# 🛡️ REDE E PRIVACIDADE (DNS CLOUDFLARE)
+# ==============================================================================
+Write-Host "`n>>> Configurando DNS Seguro (Cloudflare DoH)..." -ForegroundColor Magenta
+
+# Pega todos os adaptadores de rede físicos que estão conectados (Status Up)
+$Adapters = Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
+
+if ($Adapters) {
+    foreach ($Adapter in $Adapters) {
+        Write-Host "Aplicando DNS no adaptador: $($Adapter.Name)" -ForegroundColor Yellow
+        
+        # Define DNS Primário (1.1.1.1) e Secundário (1.0.0.1)
+        Set-DnsClientServerAddress -InterfaceIndex $Adapter.InterfaceIndex -ServerAddresses ("1.1.1.1","1.0.0.1")
+    }
+    Write-Host "DNS Cloudflare configurado com sucesso!" -ForegroundColor Green
+} else {
+    Write-Host "AVISO: Nenhum adaptador de rede ativo encontrado para configurar DNS." -ForegroundColor Red
+}
 
 # ==============================================================================
 # 🔑 ATIVAÇÃO DO WINDOWS / OFFICE
