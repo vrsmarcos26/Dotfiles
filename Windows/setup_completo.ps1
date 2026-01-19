@@ -42,14 +42,17 @@ $AppsDev = @(
     "Google.AndroidStudio",         # Dev Android
     "Docker.DockerDesktop",         # Containers
     "RARLab.WinRAR",                # Compactados
-    "Arduino.IDE"                   # IDE Arduino
+    "Arduino.IDE",                  # IDE Arduino
+    "Oracle.VirtualBox",            # VirtualBox Oficial
+    "VMware.WorkstationPro"
 )
 
 $AppsLazer = @(
     "Valve.Steam",                  # Loja de Jogos
     "EpicGames.EpicGamesLauncher",  # Loja de Jogos
     "Spotify.Spotify",              # Música
-    "Discord.Discord"               # Comunicação
+    "Discord.Discord",              # Comunicação
+    "WhirlwindFX.SignalRgb"
 )
 
 # ==============================================================================
@@ -298,3 +301,4 @@ if ($RespAtivacao -eq "S" -or $RespAtivacao -eq "s") {
 }
 
 Read-Host "Pressione Enter para sair..."
+
