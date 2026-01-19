@@ -32,14 +32,17 @@ $AppsDev = @(
     "Google.AndroidStudio",
     "Docker.DockerDesktop",
     "RARLab.WinRAR",                
-    "Arduino.IDE"                   
+    "Arduino.IDE",
+    "Oracle.VirtualBox",
+    "VMware.WorkstationPro"
 )
 
 $AppsLazer = @(
     "Valve.Steam",
     "EpicGames.EpicGamesLauncher",
     "Spotify.Spotify",
-    "Discord.Discord"
+    "Discord.Discord",
+    "WhirlwindFX.SignalRgb"
 )
 
 # ==============================================================================
