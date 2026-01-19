@@ -247,24 +247,37 @@ Register-ScheduledTask -TaskName "AutoUpdateSemanal" -Trigger $Trigger -Action $
 Write-Host "Tarefa 'AutoUpdateSemanal' criada com sucesso (Direto no Agendador)!" -ForegroundColor Green
 
 # ==============================================================================
-# 🛡️ REDE E PRIVACIDADE (DNS CLOUDFLARE)
+# 🛡️ PROTEÇÃO DE REDE: DNS CLOUDFLARE + DoH (HTTPS)
 # ==============================================================================
-Write-Host "`n>>> Configurando DNS Seguro (Cloudflare DoH)..." -ForegroundColor Magenta
+Write-Host "`n>>> Configurando DNS Seguro (CLOUDFLARE + DoH)..." -ForegroundColor Magenta
 
-# Pega todos os adaptadores de rede físicos que estão conectados (Status Up)
-$Adapters = Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
+# Definições
+$DNS_Primario = "1.1.1.1"
+$DNS_Secundario = "1.0.0.1"
+$Template_DoH = "https://cloudflare-dns.com/dns-query"
 
-if ($Adapters) {
-    foreach ($Adapter in $Adapters) {
-        Write-Host "Aplicando DNS no adaptador: $($Adapter.Name)" -ForegroundColor Yellow
-        
-        # Define DNS Primário (1.1.1.1) e Secundário (1.0.0.1)
-        Set-DnsClientServerAddress -InterfaceIndex $Adapter.InterfaceIndex -ServerAddresses ("1.1.1.1","1.0.0.1")
-    }
-    Write-Host "DNS Cloudflare configurado com sucesso!" -ForegroundColor Green
-} else {
-    Write-Host "AVISO: Nenhum adaptador de rede ativo encontrado para configurar DNS." -ForegroundColor Red
+# 1. Configura o "Template Automático" (DoH) no Windows para esses IPs
+# O parâmetro -AllowFallbackToUdp $true garante a configuração "Fall-back to plaintext"
+Write-Host "Registrando templates de criptografia (DoH)..." -ForegroundColor Yellow
+try {
+    Add-DnsClientDohServerAddress -ServerAddress $DNS_Primario -DohTemplate $Template_DoH -AllowFallbackToUdp $true -AutoUpgrade $true -ErrorAction SilentlyContinue
+    Add-DnsClientDohServerAddress -ServerAddress $DNS_Secundario -DohTemplate $Template_DoH -AllowFallbackToUdp $true -AutoUpgrade $true -ErrorAction SilentlyContinue
+} catch {
+    Write-Host "Aviso: Nao foi possivel registrar o DoH (Talvez seu Windows nao suporte ou ja exista)." -ForegroundColor Gray
 }
+
+# 2. Aplica os IPs nas placas de rede ativas
+$Adaptadores = Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
+foreach ($Nic in $Adaptadores) {
+    Write-Host "Aplicando DNS em: $($Nic.Name)" -ForegroundColor Yellow
+    try {
+        Set-DnsClientServerAddress -InterfaceIndex $Nic.InterfaceIndex -ServerAddresses ($DNS_Primario, $DNS_Secundario) -ErrorAction Stop
+    } catch {
+        Write-Host "Erro ao configurar adaptador $($Nic.Name)." -ForegroundColor Red
+    }
+}
+Write-Host "Cache DNS limpo."
+Clear-DnsClientCache
 
 # ==============================================================================
 # 🔑 ATIVAÇÃO DO WINDOWS / OFFICE
@@ -285,4 +298,3 @@ if ($RespAtivacao -eq "S" -or $RespAtivacao -eq "s") {
 }
 
 Read-Host "Pressione Enter para sair..."
-
