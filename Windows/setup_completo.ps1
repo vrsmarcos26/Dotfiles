@@ -230,6 +230,11 @@ Write-Host "`n>>> Configurando atualizacao automatica semanal..." -ForegroundCol
 # Habilita proteção do sistema no C: (necessário para Checkpoint-Computer)
 Enable-ComputerRestore -Drive "C:\" -ErrorAction SilentlyContinue
 
+# Define o espaço reservado para 10GB (Garante que cabem vários backups)
+# O comando vssadmin redimensiona a "ShadowStorage" (onde ficam os pontos)
+Write-Host "Ajustando espaco reservado para Restauracao (10GB)..." -ForegroundColor Yellow
+cmd.exe /c "vssadmin Resize ShadowStorage /For=C: /On=C: /MaxSize=10GB" | Out-Null
+
 # Define o comando combinado: Cria Backup -> Atualiza Apps
 $ComandoPowerShell = "Checkpoint-Computer -Description 'AutoUpdate_Semanal' -RestorePointType MODIFY_SETTINGS; winget upgrade --all --include-unknown --accept-source-agreements --accept-package-agreements --silent"
 
@@ -280,3 +285,4 @@ if ($RespAtivacao -eq "S" -or $RespAtivacao -eq "s") {
 }
 
 Read-Host "Pressione Enter para sair..."
+
