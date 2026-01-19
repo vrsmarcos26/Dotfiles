@@ -1,13 +1,7 @@
 <#
 .SYNOPSIS
-    Script de Setup "Kit Namorada V3" - Gamer Leigo & Visual Clean + DNS Seguro
+    Script de Setup "Kit Namorada V2" - Gamer Leigo & Visual Clean
     Autor: Adaptado por Gemini para vrsmarcos26
-    
-.DESCRIPTION
-    - Apps: Steam, Epic, WinRAR, TranslucentTB, WhatsApp, Brave, Spotify...
-    - Visual: Tema Roxo (Glow), Barra Transparente e Oculta, Sem ícones no desktop.
-    - Rede: DNS Quad9 com DoH (Criptografado) e Fallback ativado.
-    - Manutenção: Update automático e Ponto de Restauração.
 #>
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -22,23 +16,20 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 }
 
 # ==============================================================================
-# 📝 LISTAS DE APLICATIVOS (WhatsApp Adicionado)
+# 📝 LISTAS DE APLICATIVOS ATUALIZADA
 # ==============================================================================
 
 $AppsGeral = @(
     "Brave.Brave",                   # Navegador Principal
-    "RARLab.WinRAR",                 # Compactador
-    "TranslucentTB.TranslucentTB"    # Barra transparente
-)
-
-$AppsSocial = @(
-    "WhatsApp.WhatsApp",
-    "Discord.Discord"
+    "RARLab.WinRAR",                 # Compactador (Pedido)
+    "TranslucentTB.TranslucentTB",   # Barra transparente (Pedido)
+    "WhatsApp.WhatsApp"
 )
 
 $AppsGames = @(
     "Valve.Steam",
-    "EpicGames.EpicGamesLauncher"
+    "EpicGames.EpicGamesLauncher",
+    "Discord.Discord"
 )
 
 $AppsMedia = @(
@@ -57,25 +48,51 @@ function Instalar-Lista ($NomeLista, $ArrayApps) {
     }
 }
 
-# Instalação do Office 2024
+# ==============================================================================
+# 📚 INSTALAR PACOTE OFFICE
+# ==============================================================================
 function Instalar-Office {
-    Write-Host "`n>>> Preparando Microsoft Office 2024..." -ForegroundColor Cyan
+    Write-Host "`n>>> Iniciando instalacao do Microsoft Office 2024..." -ForegroundColor Cyan
+    
     $OfficeDir = "C:\OfficeTemp"
+    # Link oficial direto da Microsoft (Download Center)
     $ToolUrl = "https://download.microsoft.com/download/6c1eeb25-cf8b-41d9-8d0d-cc1dbc032140/officedeploymenttool_19426-20170.exe"
     
-    if (!(Test-Path $OfficeDir)) { New-Item -ItemType Directory -Force -Path $OfficeDir | Out-Null }
-    
-    try { 
-        Invoke-WebRequest -Uri $ToolUrl -OutFile "$OfficeDir\tool.exe" 
-        Start-Process -FilePath "$OfficeDir\tool.exe" -ArgumentList "/quiet /extract:$OfficeDir" -Wait
-    } catch { Write-Host "Erro ao baixar Office." -ForegroundColor Red; return }
+    $ToolFile = "$OfficeDir\officedeploymenttool.exe"
+    $ConfigFile = "$OfficeDir\config.xml"
+    $RealSetupFile = "$OfficeDir\setup.exe" # O arquivo que será extraído
 
-    # Configuração XML
+    # 1. Cria diretório temporário
+    if (!(Test-Path $OfficeDir)) { New-Item -ItemType Directory -Force -Path $OfficeDir | Out-Null }
+
+    # 2. Baixa a Ferramenta de Implantação (O Extrator)
+    Write-Host "Baixando Office Deployment Tool..." -ForegroundColor Yellow
+    try {
+        Invoke-WebRequest -Uri $ToolUrl -OutFile $ToolFile
+    } catch {
+        Write-Host "ERRO FATAL: Nao foi possivel baixar o ODT. Verifique sua internet." -ForegroundColor Red
+        return
+    }
+
+    # 3. Extrai o setup.exe real da ferramenta
+    Write-Host "Extraindo arquivos de instalacao..." -ForegroundColor Yellow
+    # O argumento /extract:PATH /quiet extrai sem perguntar nada
+    $ExtractProcess = Start-Process -FilePath $ToolFile -ArgumentList "/quiet /extract:$OfficeDir" -Wait -PassThru
+    
+    if (!(Test-Path $RealSetupFile)) {
+        Write-Host "ERRO: Falha ao extrair o setup.exe. Verifique se o antivirus bloqueou." -ForegroundColor Red
+        return
+    }
+
+    # 4. Cria o arquivo XML de configuração
+    Write-Host "Gerando arquivo de configuracao XML..." -ForegroundColor Yellow
     $XmlContent = @"
 <Configuration ID="9a05e267-2fa9-4ce8-9ea3-edf4ff84f3ec">
   <Add OfficeClientEdition="64" Channel="PerpetualVL2024">
     <Product ID="ProPlus2024Volume" PIDKEY="XJ2XN-FW8RK-P4HMP-DKDBV-GCVGB">
       <Language ID="pt-br" />
+      <Language ID="en-us" />
+      <Language ID="es-es" />
       <ExcludeApp ID="Access" />
       <ExcludeApp ID="Lync" />
       <ExcludeApp ID="OneDrive" />
@@ -83,27 +100,93 @@ function Instalar-Office {
       <ExcludeApp ID="Outlook" />
       <ExcludeApp ID="Publisher" />
     </Product>
+    <Product ID="ProofingTools">
+      <Language ID="en-us" />
+    </Product>
   </Add>
   <Property Name="SharedComputerLicensing" Value="0" />
+  <Property Name="FORCEAPPSHUTDOWN" Value="FALSE" />
+  <Property Name="DeviceBasedLicensing" Value="0" />
+  <Property Name="SCLCacheOverride" Value="0" />
   <Property Name="AUTOACTIVATE" Value="1" />
   <Updates Enabled="TRUE" />
   <RemoveMSI />
+  <AppSettings>
+    <User Key="software\microsoft\office\16.0\excel\options" Name="defaultformat" Value="51" Type="REG_DWORD" App="excel16" Id="L_SaveExcelfilesas" />
+    <User Key="software\microsoft\office\16.0\powerpoint\options" Name="defaultformat" Value="27" Type="REG_DWORD" App="ppt16" Id="L_SavePowerPointfilesas" />
+    <User Key="software\microsoft\office\16.0\word\options" Name="defaultformat" Value="" Type="REG_SZ" App="word16" Id="L_SaveWordfilesas" />
+  </AppSettings>
   <Display Level="None" AcceptEULA="TRUE" />
 </Configuration>
 "@
-    Set-Content -Path "$OfficeDir\config.xml" -Value $XmlContent
-    
-    Write-Host "Instalando Office..." -ForegroundColor Yellow
-    Start-Process -FilePath "$OfficeDir\setup.exe" -ArgumentList "/configure config.xml" -WorkingDirectory $OfficeDir -Wait
+    Set-Content -Path $ConfigFile -Value $XmlContent
+
+    # 5. Executa a Instalação com o setup.exe extraído
+    Write-Host "Executando instalacao do Office (Isso pode demorar)..." -ForegroundColor Yellow
+    $Process = Start-Process -FilePath $RealSetupFile -ArgumentList "/configure config.xml" -WorkingDirectory $OfficeDir -Wait -PassThru
+
+    if ($Process.ExitCode -eq 0) {
+        Write-Host "Office instalado com sucesso!" -ForegroundColor Green
+    } else {
+        Write-Host "Erro na instalacao do Office. Codigo: $($Process.ExitCode)" -ForegroundColor Red
+    }
+
+    # 6. Limpeza
+    Write-Host "Limpando arquivos temporarios..."
     Remove-Item -Path $OfficeDir -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 # Executa Instalações
 Instalar-Lista "GERAL & UTILITARIOS" $AppsGeral
-Instalar-Lista "SOCIAL & COMUNICACAO" $AppsSocial
-Instalar-Lista "GAMES" $AppsGames
+Instalar-Lista "GAMES & COMUNICACAO" $AppsGames
 Instalar-Lista "MULTIMIDIA" $AppsMedia
 Instalar-Office
+
+# ==============================================================================
+# ⚙️ WINDOWS UPDATE & OTIMIZACAO
+# ==============================================================================
+Write-Host "Configurando Windows Update..."
+# Atualizar outros produtos Microsoft (Office etc) - Requer criação de chave se não existir
+if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Services\Default")) {
+    New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Services\Default" -Force | Out-Null
+}
+# Otimização de Entrega: Permitir downloads da Rede Local (LAN) - 1 = LAN
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" -Name "DODownloadMode" -Value 1 -ErrorAction SilentlyContinue
+
+# Reinicia o Explorer
+Write-Host "Reiniciando Explorer para aplicar mudancas..." -ForegroundColor Cyan
+Stop-Process -Name explorer -Force
+Start-Sleep -s 2
+
+Write-Host "`nSETUP DE APPS CONCLUIDO!" -ForegroundColor Green
+Write-Host "Nota: O Docker e o Android Studio podem exigir logoff."
+
+Write-Host "Atualizando programas pre-existentes..." -ForegroundColor Blue
+winget upgrade --all --include-unknown --accept-source-agreements --silent
+
+# ==============================================================================
+# 🔄 CONFIGURAÇÃO DE UPDATE AUTOMÁTICO (SEM ARQUIVO .BAT)
+# ==============================================================================
+Write-Host "`n>>> Configurando atualizacao automatica semanal..." -ForegroundColor Magenta
+
+# Habilita proteção do sistema no C: (necessário para Checkpoint-Computer)
+Enable-ComputerRestore -Drive "C:\" -ErrorAction SilentlyContinue
+
+# Define o espaço reservado para 10GB (Garante que cabem vários backups)
+# O comando vssadmin redimensiona a "ShadowStorage" (onde ficam os pontos)
+Write-Host "Ajustando espaco reservado para Restauracao (10GB)..." -ForegroundColor Yellow
+cmd.exe /c "vssadmin Resize ShadowStorage /For=C: /On=C: /MaxSize=10GB" | Out-Null
+
+# Define o comando combinado: Cria Backup -> Atualiza Apps
+$ComandoPowerShell = "Checkpoint-Computer -Description 'AutoUpdate_Semanal' -RestorePointType MODIFY_SETTINGS; winget upgrade --all --include-unknown --accept-source-agreements --accept-package-agreements --silent"
+
+$Trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Wednesday -At 8pm
+# Executa o powershell de forma oculta (Hidden) rodando o comando acima
+$Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-ExecutionPolicy Bypass -WindowStyle Hidden -Command `"$ComandoPowerShell`""
+
+Register-ScheduledTask -TaskName "AutoUpdateSemanal" -Trigger $Trigger -Action $Action -Description "Atualiza softwares via Winget com Ponto de Restauracao" -User "System" -RunLevel Highest -Force | Out-Null
+
+Write-Host "Tarefa 'AutoUpdateSemanal' criada com sucesso (Direto no Agendador)!" -ForegroundColor Green
 
 # ==============================================================================
 # 🛡️ PROTEÇÃO DE REDE: DNS QUAD9 + DoH (HTTPS)
@@ -139,64 +222,74 @@ Write-Host "Cache DNS limpo."
 Clear-DnsClientCache
 
 # ==============================================================================
-# 🛡️ PROTEÇÃO DO SISTEMA & BACKUP
-# ==============================================================================
-Write-Host "`n>>> Configurando Protecao e Updates..." -ForegroundColor Magenta
-
-# Ponto de Restauração
-Enable-ComputerRestore -Drive "C:\"
-Checkpoint-Computer -Description "Setup Completo Namorada" -RestorePointType "MODIFY_SETTINGS"
-
-# Tarefa de Update Semanal
-$Trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Wednesday -At 8pm
-$Action = New-ScheduledTaskAction -Execute "winget" -Argument "upgrade --all --include-unknown --accept-source-agreements --accept-package-agreements --silent"
-Register-ScheduledTask -TaskName "AutoUpdateSemanal" -Trigger $Trigger -Action $Action -User "System" -RunLevel Highest -Force | Out-Null
-
-# ==============================================================================
 # 🎨 VISUAL "DARK PURPLE" & EXPLORER
 # ==============================================================================
 Write-Host "`n>>> Aplicando Ajustes Visuais..." -ForegroundColor Magenta
 
 # 1. TEMA DARK PURPLE (Glow)
-$ThemePath = "C:\Windows\Resources\Themes\glow.theme"
+# O tema "Dark Purple" das configurações é o arquivo "Glow.theme"
+# TEMA DARK "GLOW" (CORRETO: themeA.theme) ---
+$ThemePath = "C:\Windows\Resources\Themes\themeA.theme"
+
 if (Test-Path $ThemePath) {
-    Write-Host "Aplicando tema Glow (Dark Purple)..."
-    Start-Process -FilePath $ThemePath -Wait
-    Start-Sleep -s 3 
+    Write-Host "Aplicando tema Glow (Arquivo: themeA.theme)..." -ForegroundColor Cyan
+    # Executa o tema
+    Start-Process -FilePath $ThemePath
+    
+    # Tenta fechar a janela de configurações que vai abrir sozinha
+    Start-Sleep -Seconds 3
+    $Janela = Get-Process | Where-Object {$_.MainWindowTitle -match "Configurações|Settings"}
+    if ($Janela) { Stop-Process -Id $Janela.Id -Force -ErrorAction SilentlyContinue }
+    
+    Write-Host "Tema aplicado!" -ForegroundColor Green
+} else {
+    Write-Host "ERRO: O arquivo themeA.theme ainda não foi encontrado." -ForegroundColor Red
 }
 
-# 2. MODO ESCURO
+
+# 2. MODO ESCURO (Garantia)
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 0
 
-# 3. EXPLORER (Mostra extensões, oculta ícones do desktop)
+# 3. EXPLORER (Opostos: Mostra Extensões e Ocultos, Esconde Ícones Desktop)
+# Mostrar Extensões
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 0
+# Mostrar Arquivos Ocultos
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value 1
+# OCULTAR Ícones da Área de Trabalho (Desktop Clean)
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideIcons" -Value 1
 
 # 4. BARRA DE TAREFAS (Auto Hide)
-$p = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3"
-$v = (Get-ItemProperty -Path $p).Settings
-$v[8] = 3 # Auto Hide
-Set-ItemProperty -Path $p -Name "Settings" -Value $v
+# --- BARRA DE TAREFAS ---
+Write-Host "Ajustando Barra de Tarefas..."
+# Ocultar Pesquisa na Barra de Tarefas (0 = Oculto, 1 = Ícone, 2 = Caixa)
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 0
+# Ocultar Widgets
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value 0
+# Alinhamento da Barra de Tarefas (1 = Centro, 0 = Esquerda)
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 1
 
-# Reinicia Explorer
+# Auto-Hide
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3" -Name "Settings" -Value ([byte[]](0x30,0x00,0x00,0x00,0xfe,0xff,0xff,0xff,0x03,0x00,0x00,0x00,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00))
+
+# Reinicia Explorer para aplicar
 Stop-Process -Name explorer -Force
 Start-Sleep -s 2
 
 # ==============================================================================
-# 🔑 ATIVAÇÃO (MAS)
+# 🔑 ATIVAÇÃO & VERIFICAÇÃO (MAS)
 # ==============================================================================
 Write-Host "`n========================================================"
-Write-Host " 🚀 STATUS DE ATIVACAO"
+Write-Host " 🚀 STATUS DE ATIVACAO (WINDOWS & OFFICE)"
 Write-Host "========================================================"
-Write-Host "Abrindo Menu MAS..."
-Write-Host "Use [1] para ativar Windows ou [2] para Office."
-Write-Host "Use [5] para verificar status."
+Write-Host "Vou abrir o menu de ativacao agora."
+Write-Host "1. Verifique o status com a opcao [5]"
+Write-Host "2. Se precisar ativar, use [1] para Windows ou [2] para Office."
+Write-Host "3. Quando terminar, feche a janela preta para encerrar o script."
 Write-Host "========================================================"
-Write-Host ">>> LEMBRE-SE DE INSTALAR O BIT-DEFENDER FREE MANUALMENTE <<<" -ForegroundColor Magenta
-Read-Host "Pressione Enter para continuar..."
+Read-Host "Pressione Enter para abrir o menu de ativacao..."
 
+# Executa o comando MAS (Microsoft Activation Scripts) interativamente
 powershell.exe -Command "irm https://get.activated.win | iex"
 
 Write-Host "`n✅ SETUP CONCLUIDO!" -ForegroundColor Green
