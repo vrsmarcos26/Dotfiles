@@ -60,8 +60,8 @@ Write-Host "================================================================" -F
 Write-Host "Este script ira:"
 Write-Host "1. Desinstalar TODOS os programas listados (incluindo Office 2024)."
 Write-Host "2. Excluir a tarefa agendada 'AutoUpdateSemanal'."
-Write-Host "3. Apagar a pasta C:\Scripts permanentemente."
-Write-Host "4. Reverter configuracoes de visualizacao e tema para o padrao (Claro)."
+Write-Host "3. Reverter configuracoes de visualizacao e tema para o padrao (Claro)."
+Write-Host "4. Resetar DNS para DHCP (Automatico)."
 Write-Host ""
 $Confirmacao = Read-Host "Tem certeza absoluta que deseja continuar? Digite 'DESTRUIR' para confirmar"
 
@@ -83,6 +83,10 @@ function Desinstalar-Lista ($NomeLista, $ArrayApps) {
     }
 }
 
+# ==============================================================================
+# 🗑️ DESINSTALAÇÃO OFFICE
+# ==============================================================================
+
 function Desinstalar-Office {
     Write-Host "`n>>> Removendo Microsoft Office 2024..." -ForegroundColor Magenta
     
@@ -95,34 +99,38 @@ function Desinstalar-Office {
 
     if (!(Test-Path $OfficeDir)) { New-Item -ItemType Directory -Force -Path $OfficeDir | Out-Null }
 
-    # Baixa o Extrator
-    Write-Host "Baixando ferramenta de remocao..."
-    Invoke-WebRequest -Uri $ToolUrl -OutFile $ToolFile
+    try{
+        # Baixa o Extrator
+        Write-Host "Baixando ferramenta de remocao..."
+        Invoke-WebRequest -Uri $ToolUrl -OutFile $ToolFile
 
-    # Extrai o setup.exe
-    Write-Host "Extraindo arquivos..."
-    Start-Process -FilePath $ToolFile -ArgumentList "/quiet /extract:$OfficeDir" -Wait
+        # Extrai o setup.exe
+        Write-Host "Extraindo arquivos..."
+        Start-Process -FilePath $ToolFile -ArgumentList "/quiet /extract:$OfficeDir" -Wait
 
-    if (!(Test-Path $RealSetupFile)) {
-        Write-Host "ERRO: Falha ao extrair setup.exe para remocao." -ForegroundColor Red
-        return
-    }
+        if (!(Test-Path $RealSetupFile)) {
+            Write-Host "ERRO: Falha ao extrair setup.exe para remocao." -ForegroundColor Red
+            return
+        }
 
-    # Cria XML de Remoção
-    $XmlContent = @"
+        # Cria XML de Remoção
+        $XmlContent = @"
 <Configuration>
-  <Remove All="TRUE" />
-  <Display Level="None" AcceptEULA="TRUE" />
+<Remove All="TRUE" />
+<Display Level="None" AcceptEULA="TRUE" />
 </Configuration>
 "@
-    Set-Content -Path $ConfigFile -Value $XmlContent
+        Set-Content -Path $ConfigFile -Value $XmlContent
 
-    Write-Host "Executando desinstalacao do Office..."
-    Start-Process -FilePath $RealSetupFile -ArgumentList "/configure remove.xml" -WorkingDirectory $OfficeDir -Wait
+        Write-Host "Executando desinstalacao do Office..."
+        Start-Process -FilePath $RealSetupFile -ArgumentList "/configure remove.xml" -WorkingDirectory $OfficeDir -Wait
 
-    # Limpeza
-    Remove-Item -Path $OfficeDir -Recurse -Force -ErrorAction SilentlyContinue
-    Write-Host "Office removido." -ForegroundColor Green
+        # Limpeza
+        Remove-Item -Path $OfficeDir -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Host "Office removido." -ForegroundColor Green
+    } catch{
+        Write-Host "Erro ao tentar remover o Office automaticamente." -ForegroundColor Red
+    }
 }
 
 Desinstalar-Lista "SEGURANCA" $AppsSecurity
@@ -146,6 +154,15 @@ if (Test-Path "C:\Scripts") {
     Remove-Item -Path "C:\Scripts" -Recurse -Force -ErrorAction SilentlyContinue
 }
 
+# 2.1 --- REVERSÃO DE REDE (DNS) ---
+Write-Host "Resetando DNS para DHCP..." -ForegroundColor Yellow
+$Adapters = Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
+if ($Adapters) {
+    foreach ($Adapter in $Adapters) {
+        Set-DnsClientServerAddress -InterfaceIndex $Adapter.InterfaceIndex -ResetServerAddresses
+    }
+}
+
 # 3. Reverte Configurações do Windows (Padrão de Fábrica)
 Write-Host "Revertendo configuracoes do Explorer e Tema..."
 
@@ -164,6 +181,9 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\P
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 1
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value 1
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 1
+
+# Reset da Barra de Tarefas (Tenta remover o Auto-Hide forçado deletando a chave de cache)
+Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3" -Name "Settings" -ErrorAction SilentlyContinue
 
 # Reinicia o Explorer
 Write-Host "Reiniciando Explorer para aplicar mudancas..." -ForegroundColor Cyan
