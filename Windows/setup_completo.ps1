@@ -302,3 +302,38 @@ if ($RespAtivacao -eq "S" -or $RespAtivacao -eq "s") {
 
 Read-Host "Pressione Enter para sair..."
 
+
+# ==============================================================================
+# 🎮 DETECÇÃO DE HARDWARE E APPS DE VÍDEO
+# ==============================================================================
+
+# 1. Instalação do SignalRGB (Serve para ambos)
+# Coloquei aqui separado ou pode por na lista $AppsLazer
+<# Instalar-Lista "CONTROLE RGB" @("WhirlwindFX.SignalRgb")
+
+Write-Host "`n>>> Verificando Placa de Video (GPU)..." -ForegroundColor Magenta
+$GPU = Get-CimInstance Win32_VideoController
+
+if ($GPU.Name -match "NVIDIA") {
+    # --- CENÁRIO NOTEBOOK (RTX 3050) ---
+    Write-Host "Hardware NVIDIA identificado. Instalando Suite Gamer + Dev..." -ForegroundColor Green
+    $AppsNvidia = @(
+        "Nvidia.GeForceExperience",   # Otimização de jogos e Update de Drivers
+        "Nvidia.CUDA",                # Essencial para CyberSec (Hashcat) e Dev IA
+        "Nvidia.PhysX"                # Motor de física (alguns jogos antigos pedem)
+    )
+    Instalar-Lista "DRIVERS NVIDIA" $AppsNvidia
+
+} elseif ($GPU.Name -match "AMD" -or $GPU.Name -match "Radeon") {
+    # --- CENÁRIO DESKTOP (RX 7600) ---
+    Write-Host "Hardware AMD identificado. Instalando Suite Gamer..." -ForegroundColor Green
+    $AppsAMD = @(
+        "AMD.RadeonSoftware",         # O equivalente ao GeForce Exp. para AMD (Adrenalin)
+        "CPUID.CPU-Z",                # Monitoramento de Hardware
+        "AMD.RyzenMaster"             # Overclock/Monitoramento de CPU Ryzen (Opcional, mas útil)
+    )
+    Instalar-Lista "DRIVERS AMD" $AppsAMD
+    
+} else {
+    Write-Host "Nenhuma GPU gamer dedicada detectada pelo script." -ForegroundColor Gray
+} #> 
