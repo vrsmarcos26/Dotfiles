@@ -31,18 +31,18 @@ $AppsSecurity = @(
     "Brave.Brave",                  # Navegador Seguro
     "Proton.ProtonVPN",             # VPN
     "Bitwarden.Bitwarden",          # Gerenciador de Senhas
-    "Malwarebytes.Malwarebytes",    # Scanner de Segunda Opinião
-    "Filen.Filen"                   # Backup automatico
+    "Malwarebytes.Malwarebytes",    # Scanner de Segunda Opiniao
+    "FilenCloud.FilenSync"          # Backup automatico
 )
 
 $AppsDev = @(
     "Microsoft.VisualStudioCode",   # Editor de Código
-    "Python.Python.3.12",           # Python (Versão estável)
+    "Python.Python.3.12",           # Python (Versao estavel)
     "Git.Git",                      # Controle de Versão
     "Google.AndroidStudio",         # Dev Android
-    "Docker.DockerDesktop",         # Containers
+    # "Docker.DockerDesktop",         Containers
     "RARLab.WinRAR",                # Compactados
-    "Arduino.IDE",                  # IDE Arduino
+    "ArduinoSA.IDE.stable",         # IDE Arduino
     "Oracle.VirtualBox",            # VirtualBox Oficial
     "VMware.WorkstationPro"
 )
@@ -50,9 +50,10 @@ $AppsDev = @(
 $AppsLazer = @(
     "Valve.Steam",                  # Loja de Jogos
     "EpicGames.EpicGamesLauncher",  # Loja de Jogos
-    "Spotify.Spotify",              # Música
-    "Discord.Discord",              # Comunicação
-    "WhirlwindFX.SignalRgb"
+    "9NCBCSZSJRSB",                 # Spotify (Versão Store - Funciona como Admin)
+    "Discord.Discord",              # Comunicacao
+    "WhirlwindFX.SignalRgb",        # Controlador RGB
+    "CharlesMilette.TranslucentTB"  # Barra de tarefas invisivel
 )
 
 # ==============================================================================
@@ -61,6 +62,7 @@ $AppsLazer = @(
 
 function Instalar-Lista ($NomeLista, $ArrayApps) {
     Write-Host "`n>>> Iniciando categoria: $NomeLista..." -ForegroundColor Cyan
+
     foreach ($AppID in $ArrayApps) {
         Write-Host "Instalando $AppID..." -ForegroundColor Yellow
         # Tenta instalar ou atualizar se já existir
@@ -164,6 +166,10 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 }
 
 # Executando as Instalações
+winget source reset --force
+winget source update
+winget --version
+
 Instalar-Lista "SEGURANCA" $AppsSecurity
 Instalar-Lista "DESENVOLVIMENTO" $AppsDev
 Instalar-Lista "LAZER" $AppsLazer
@@ -178,11 +184,17 @@ Write-Host "`n>>> Aplicando configuracoes do Windows..." -ForegroundColor Magent
 
 # --- EXPLORER & VISUALIZAÇÃO ---
 Write-Host "Configurando Explorer e Area de Trabalho..."
+
 # Exibir extensões de arquivos
+Write-Host "Exibir extensoes de arquivos"
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 0
+
 # Exibir arquivos ocultos
+Write-Host "Exibir arquivos ocultos"
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value 1
+
 # Ocultar icones da Area de Trabalho (Desktop limpo)
+Write-Host "Ocultar icones da Area de Trabalho (Desktop limpo)"
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideIcons" -Value 1
 
 # --- TEMA ESCURO (DARK MODE) ---
@@ -194,14 +206,39 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\P
 
 # --- BARRA DE TAREFAS ---
 Write-Host "Ajustando Barra de Tarefas..."
+
+# Para o Explorer ANTES de mexer na Taskbar
+Stop-Process -Name explorer -Force
+Start-Sleep -Milliseconds 800
+
 # Ocultar Pesquisa na Barra de Tarefas (0 = Oculto, 1 = Ícone, 2 = Caixa)
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 0
+Write-Host " - Ocultando icone de Pesquisa..."
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 0 -ErrorAction SilentlyContinue
+
 # Ocultar Widgets
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value 0
+Write-Host " - Ocultando Widgets...(clima)"
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value 0 -ErrorAction SilentlyContinue
+
 # Alinhamento da Barra de Tarefas (1 = Centro, 0 = Esquerda)
+Write-Host " - Centralizando Barra de Tarefas..."
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 1
+
 # Auto-Hide
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3" -Name "Settings" -Value ([byte[]](0x30,0x00,0x00,0x00,0xfe,0xff,0xff,0xff,0x03,0x00,0x00,0x00,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00))
+# ATENÇÃO: Esta é a chave binária complexa. Se não funcionar, o Windows pode ignorar.
+Write-Host " - Ativando Ocultar Automaticamente..."
+$StuckRects3Path = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3"
+if (Test-Path $StuckRects3Path) {
+    # Valor Hexadecimal para forçar o Auto-Hide
+    $Valores = ([byte[]](0x30,0x00,0x00,0x00,0xfe,0xff,0xff,0xff,0x03,0x00,0x00,0x00,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00))
+    Set-ItemProperty -Path $StuckRects3Path -Name "Settings" -Value $Valores -ErrorAction SilentlyContinue
+}
+
+Write-Host "`n🔄 Reiniciando o Explorer para aplicar mudancas..." -ForegroundColor Yellow
+Stop-Process -Name explorer -Force
+Start-Sleep -s 3
+
+Write-Host "`n Lembrando que algumas coisas podem nao funcionar de cara, reinicie o computador e depois faca voce mesmo" -ForegroundColor Yellow
+
 
 # ==============================================================================
 # ⚙️ WINDOWS UPDATE & OTIMIZACAO
@@ -309,7 +346,8 @@ Read-Host "Pressione Enter para sair..."
 
 # 1. Instalação do SignalRGB (Serve para ambos)
 # Coloquei aqui separado ou pode por na lista $AppsLazer
-<# Instalar-Lista "CONTROLE RGB" @("WhirlwindFX.SignalRgb")
+<# 
+Instalar-Lista "CONTROLE RGB" @("WhirlwindFX.SignalRgb")
 
 Write-Host "`n>>> Verificando Placa de Video (GPU)..." -ForegroundColor Magenta
 $GPU = Get-CimInstance Win32_VideoController
@@ -336,4 +374,5 @@ if ($GPU.Name -match "NVIDIA") {
     
 } else {
     Write-Host "Nenhuma GPU gamer dedicada detectada pelo script." -ForegroundColor Gray
-} #> 
+} 
+#> 
