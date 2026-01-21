@@ -42,7 +42,8 @@ $AppsLazer = @(
     "EpicGames.EpicGamesLauncher",
     "Spotify.Spotify",
     "Discord.Discord",
-    "WhirlwindFX.SignalRgb"
+    "WhirlwindFX.SignalRgb",
+    "RamenSoftware.Windhawk"
 )
 
 # ==============================================================================
