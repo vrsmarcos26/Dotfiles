@@ -88,6 +88,29 @@ function Desinstalar-Lista ($NomeLista, $ArrayApps) {
 }
 
 # ==============================================================================
+# 2. REMOÇÃO DE CUSTOMIZAÇÕES (GLASS)
+# ==============================================================================
+Write-Host "`n>>> Removendo Efeito Glass (Glass)..." -ForegroundColor Cyan
+$MicaPath = "C:\Glass"
+$DllFile = "$MicaPath\ExplorerBlurMica.dll"
+
+if (Test-Path $DllFile) {
+    Write-Host "Desregistrando DLL..."
+    Start-Process "regsvr32.exe" -ArgumentList "/u /s `"$DllFile`"" -Wait
+    Start-Sleep -s 1
+    
+    # É preciso matar o explorer para soltar o arquivo e deletar
+    Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
+    Start-Sleep -s 2
+    
+    Remove-Item -Path $MicaPath -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Host "Arquivos do Mica removidos." -ForegroundColor Green
+    
+    # Reinicia explorer se foi morto
+    if (!(Get-Process explorer -ErrorAction SilentlyContinue)) { Start-Process explorer }
+}
+
+# ==============================================================================
 # 🗑️ DESINSTALAÇÃO OFFICE
 # ==============================================================================
 
