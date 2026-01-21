@@ -53,7 +53,8 @@ $AppsLazer = @(
     "9NCBCSZSJRSB",                 # Spotify (Versão Store - Funciona como Admin)
     "Discord.Discord",              # Comunicacao
     "WhirlwindFX.SignalRgb",        # Controlador RGB
-    "CharlesMilette.TranslucentTB"  # Barra de tarefas invisivel
+    #"CharlesMilette.TranslucentTB"  # Barra de tarefas invisivel
+    "RamenSoftware.Windhawk"
 )
 
 # ==============================================================================
@@ -376,3 +377,4 @@ if ($GPU.Name -match "NVIDIA") {
     Write-Host "Nenhuma GPU gamer dedicada detectada pelo script." -ForegroundColor Gray
 } 
 #> 
+
