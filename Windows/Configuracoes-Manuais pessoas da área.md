@@ -86,6 +86,18 @@ Confirme se a tarefa de atualização foi criada corretamente pelo script.
 
 ---
 
+## 🎨 3.1 Estilização
+
+O script instalará o Windhawk. Abra-o manualmente e instale os seguintes mods para completar o visual:
+
+### 🛡️ Verificar, baixar e instalar os seguintes estilos para modo Glass
+
+* [ ] **Windows 11 Notification Center Styler** (Configuração: **TranslucentShell**)
+* [ ] **Windows 11 Start Menu Styler** (Configuração: **TranslucentStartMenu**)
+* [ ] **Windows 11 Taskbar Styler** (Configuração: **SimplyTransparent**)
+
+---
+
 ## 🌐 4. Rede e Conectividade (DNS)
 
 O script configura o Windows para usar os servidores da Cloudflare (1.1.1.1) em todos os adaptadores ativos no momento da instalação.
@@ -115,3 +127,4 @@ Se você perder a conexão nessas situações:
 ## ✅ Finalização
 
 - [ ] Reiniciar o computador para garantir que todas as alterações de drivers (VPN) e serviços (Docker/System) sejam aplicadas.
+
