@@ -218,6 +218,9 @@ Instalar-Lista "LAZER" $AppsLazer
 # Instalação do Office Dedicada
 Instalar-Office
 
+# Efeito Glass
+Instalar-Mica
+
 # ==============================================================================
 # 🛠️ CONFIGURAÇÕES DO WINDOWS (Hardening & Visual)
 # ==============================================================================
@@ -417,5 +420,6 @@ if ($GPU.Name -match "NVIDIA") {
     Write-Host "Nenhuma GPU gamer dedicada detectada pelo script." -ForegroundColor Gray
 } 
 #> 
+
 
 
