@@ -263,7 +263,9 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\P
 # Modo Escuro para Sistema (Barra de tarefas etc)
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 0
 
-# --- BARRA DE TAREFAS ---
+# ==============================================================================
+# 🎨 BARRA DE TAREFAS
+# ==============================================================================
 Write-Host "Ajustando Barra de Tarefas..."
 
 # Para o Explorer ANTES de mexer na Taskbar
@@ -435,6 +437,7 @@ if ($GPU.Name -match "NVIDIA") {
     Write-Host "Nenhuma GPU gamer dedicada detectada pelo script." -ForegroundColor Gray
 } 
 #> 
+
 
 
 
