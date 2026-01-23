@@ -210,6 +210,96 @@ Instalar-Office
 Instalar-Mica
 
 # ==============================================================================
+# 🛠️ CONFIGURAÇÕES DO EXPLORER (Hardening & Visual)
+# ==============================================================================
+Write-Host "`n>>> Aplicando configuracoes do Windows..." -ForegroundColor Magenta
+
+# --- EXPLORER & VISUALIZAÇÃO ---
+Write-Host "Configurando Explorer e Area de Trabalho..."
+
+# Exibir extensões de arquivos
+Write-Host "Exibir extensoes de arquivos"
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 0
+
+# Exibir arquivos ocultos
+Write-Host "Exibir arquivos ocultos"
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value 1
+
+# Ocultar icones da Area de Trabalho (Desktop limpo)
+Write-Host "Ocultar icones da Area de Trabalho (Desktop limpo)"
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideIcons" -Value 1
+
+# ==============================================================================
+# 🎨 VISUAL "DARK PURPLE" & EXPLORER
+# ==============================================================================
+Write-Host "`n>>> Aplicando Ajustes Visuais..." -ForegroundColor Magenta
+
+# 1. TEMA DARK PURPLE (Glow)
+# O tema "Dark Purple" das configurações é o arquivo "Glow.theme"
+# TEMA DARK "GLOW" (CORRETO: themeA.theme) ---
+$ThemePath = "C:\Windows\Resources\Themes\themeA.theme"
+
+if (Test-Path $ThemePath) {
+    Write-Host "Aplicando tema Glow (Arquivo: themeA.theme)..." -ForegroundColor Cyan
+    # Executa o tema
+    Start-Process -FilePath $ThemePath
+    
+    # Tenta fechar a janela de configurações que vai abrir sozinha
+    Start-Sleep -Seconds 3
+    $Janela = Get-Process | Where-Object {$_.MainWindowTitle -match "Configurações|Settings"}
+    if ($Janela) { Stop-Process -Id $Janela.Id -Force -ErrorAction SilentlyContinue }
+    
+    Write-Host "Tema aplicado!" -ForegroundColor Green
+} else {
+    Write-Host "ERRO: O arquivo themeA.theme ainda não foi encontrado." -ForegroundColor Red
+}
+
+# --- TEMA ESCURO (DARK MODE) ---
+Write-Host "Ativando Modo Escuro..."
+# Modo Escuro para Apps
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0
+# Modo Escuro para Sistema (Barra de tarefas etc)
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 0
+
+# ==============================================================================
+# 🎨 BARRA DE TAREFAS
+# ==============================================================================
+
+Write-Host "Ajustando Barra de Tarefas..."
+
+# Para o Explorer ANTES de mexer na Taskbar
+Stop-Process -Name explorer -Force
+Start-Sleep -Milliseconds 800
+
+# Ocultar Pesquisa na Barra de Tarefas (0 = Oculto, 1 = Ícone, 2 = Caixa)
+Write-Host " - Ocultando icone de Pesquisa..."
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 0 -ErrorAction SilentlyContinue
+
+# Ocultar Widgets
+Write-Host " - Ocultando Widgets...(clima)"
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value 0 -ErrorAction SilentlyContinue
+
+# Alinhamento da Barra de Tarefas (1 = Centro, 0 = Esquerda)
+Write-Host " - Centralizando Barra de Tarefas..."
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 1
+
+# Auto-Hide
+# ATENÇÃO: Esta é a chave binária complexa. Se não funcionar, o Windows pode ignorar.
+Write-Host " - Ativando Ocultar Automaticamente..."
+$StuckRects3Path = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3"
+if (Test-Path $StuckRects3Path) {
+    # Valor Hexadecimal para forçar o Auto-Hide
+    $Valores = ([byte[]](0x30,0x00,0x00,0x00,0xfe,0xff,0xff,0xff,0x03,0x00,0x00,0x00,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00))
+    Set-ItemProperty -Path $StuckRects3Path -Name "Settings" -Value $Valores -ErrorAction SilentlyContinue
+}
+
+Write-Host "`n🔄 Reiniciando o Explorer para aplicar mudancas..." -ForegroundColor Yellow
+Stop-Process -Name explorer -Force
+Start-Sleep -s 3
+
+Write-Host "`n Lembrando que algumas coisas podem nao funcionar de cara, reinicie o computador e depois faca voce mesmo" -ForegroundColor Yellow
+
+# ==============================================================================
 # ⚙️ WINDOWS UPDATE & OTIMIZACAO
 # ==============================================================================
 Write-Host "Configurando Windows Update..."
@@ -287,31 +377,6 @@ foreach ($Nic in $Adaptadores) {
 }
 Write-Host "Cache DNS limpo."
 Clear-DnsClientCache
-
-# ==============================================================================
-# 🎨 VISUAL "DARK PURPLE" & EXPLORER
-# ==============================================================================
-Write-Host "`n>>> Aplicando Ajustes Visuais..." -ForegroundColor Magenta
-
-# 1. TEMA DARK PURPLE (Glow)
-# O tema "Dark Purple" das configurações é o arquivo "Glow.theme"
-# TEMA DARK "GLOW" (CORRETO: themeA.theme) ---
-$ThemePath = "C:\Windows\Resources\Themes\themeA.theme"
-
-if (Test-Path $ThemePath) {
-    Write-Host "Aplicando tema Glow (Arquivo: themeA.theme)..." -ForegroundColor Cyan
-    # Executa o tema
-    Start-Process -FilePath $ThemePath
-    
-    # Tenta fechar a janela de configurações que vai abrir sozinha
-    Start-Sleep -Seconds 3
-    $Janela = Get-Process | Where-Object {$_.MainWindowTitle -match "Configurações|Settings"}
-    if ($Janela) { Stop-Process -Id $Janela.Id -Force -ErrorAction SilentlyContinue }
-    
-    Write-Host "Tema aplicado!" -ForegroundColor Green
-} else {
-    Write-Host "ERRO: O arquivo themeA.theme ainda não foi encontrado." -ForegroundColor Red
-}
 
 
 # 2. MODO ESCURO (Garantia)
