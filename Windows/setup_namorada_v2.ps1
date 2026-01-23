@@ -136,11 +136,50 @@ function Instalar-Office {
     Remove-Item -Path $OfficeDir -Recurse -Force -ErrorAction SilentlyContinue
 }
 
+# ==============================================================================
+# 🪟 FUNÇÃO EFEITO GLASS (ExplorerBlurMica)
+# ==============================================================================
+function Instalar-Mica {
+    Write-Host "`n>>> Configurando Efeito Glass (Glass)..." -ForegroundColor Cyan
+    
+    # Define caminhos
+    $SourceDir = "$PSScriptRoot\Glass" # Pasta junto do script
+    $InstallDir = "C:\Glass"     # Local seguro de instalação
+    $DllFile = "$InstallDir\ExplorerBlurMica.dll"
+
+    # Verifica se os arquivos de origem existem
+    if (!(Test-Path "$SourceDir\ExplorerBlurMica.dll")) {
+        Write-Host "AVISO: Pasta 'Glass' nao encontrada junto ao script." -ForegroundColor Yellow
+        Write-Host "O efeito Glass nao sera aplicado. Baixe o DLL e coloque na pasta." -ForegroundColor Gray
+        return
+    }
+
+    # Cria pasta de destino
+    if (!(Test-Path $InstallDir)) { New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null }
+
+    # Copia arquivos
+    Copy-Item -Path "$SourceDir\*" -Destination $InstallDir -Force -Recurse
+    Write-Host "Arquivos copiados para $InstallDir" -ForegroundColor Green
+
+    # Registra a DLL (regsvr32)
+    Write-Host "Registrando DLL..."
+    $RegProc = Start-Process "regsvr32.exe" -ArgumentList "/s `"$DllFile`"" -PassThru -Wait
+    
+    if ($RegProc.ExitCode -eq 0) {
+        Write-Host "Efeito Glass aplicado com sucesso!" -ForegroundColor Green
+    } else {
+        Write-Host "Erro ao registrar DLL. Codigo: $($RegProc.ExitCode)" -ForegroundColor Red
+    }
+}
+
+
 # Executa Instalações
 Instalar-Lista "GERAL & UTILITARIOS" $AppsGeral
 Instalar-Lista "GAMES & COMUNICACAO" $AppsGames
 Instalar-Lista "MULTIMIDIA" $AppsMedia
 Instalar-Office
+
+Instalar-Mica
 
 # ==============================================================================
 # ⚙️ WINDOWS UPDATE & OTIMIZACAO
