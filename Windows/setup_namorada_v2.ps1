@@ -378,51 +378,22 @@ foreach ($Nic in $Adaptadores) {
 Write-Host "Cache DNS limpo."
 Clear-DnsClientCache
 
-
-# 2. MODO ESCURO (Garantia)
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 0
-
-# 3. EXPLORER (Opostos: Mostra Extensões e Ocultos, Esconde Ícones Desktop)
-# Mostrar Extensões
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 0
-# Mostrar Arquivos Ocultos
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value 1
-# OCULTAR Ícones da Área de Trabalho (Desktop Clean)
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideIcons" -Value 1
-
-# 4. BARRA DE TAREFAS (Auto Hide)
-# --- BARRA DE TAREFAS ---
-Write-Host "Ajustando Barra de Tarefas..."
-# Ocultar Pesquisa na Barra de Tarefas (0 = Oculto, 1 = Ícone, 2 = Caixa)
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 0
-# Ocultar Widgets
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value 0
-# Alinhamento da Barra de Tarefas (1 = Centro, 0 = Esquerda)
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 1
-
-# Auto-Hide
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3" -Name "Settings" -Value ([byte[]](0x30,0x00,0x00,0x00,0xfe,0xff,0xff,0xff,0x03,0x00,0x00,0x00,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00))
-
-# Reinicia Explorer para aplicar
-Stop-Process -Name explorer -Force
-Start-Sleep -s 2
-
 # ==============================================================================
-# 🔑 ATIVAÇÃO & VERIFICAÇÃO (MAS)
+# 🔑 ATIVAÇÃO DO WINDOWS / OFFICE
 # ==============================================================================
-Write-Host "`n========================================================"
-Write-Host " 🚀 STATUS DE ATIVACAO (WINDOWS & OFFICE)"
-Write-Host "========================================================"
-Write-Host "Vou abrir o menu de ativacao agora."
-Write-Host "1. Verifique o status com a opcao [5]"
-Write-Host "2. Se precisar ativar, use [1] para Windows ou [2] para Office."
-Write-Host "3. Quando terminar, feche a janela preta para encerrar o script."
-Write-Host "========================================================"
-Read-Host "Pressione Enter para abrir o menu de ativacao..."
+Write-Host "`n========================================================" -ForegroundColor Cyan
+Write-Host "           VERIFICACAO DE ATIVACAO (MAS TOOL)           " -ForegroundColor Cyan
+Write-Host "========================================================" -ForegroundColor Cyan
+Write-Host "Deseja verificar o status de ativacao do Windows/Office agora?"
+Write-Host "Isso abrira o menu do Microsoft Activation Scripts (MAS)."
+$RespAtivacao = Read-Host "Digite [S] para Sim ou [Enter] para Pular"
 
-# Executa o comando MAS (Microsoft Activation Scripts) interativamente
-powershell.exe -Command "irm https://get.activated.win | iex"
+if ($RespAtivacao -eq "S" -or $RespAtivacao -eq "s") {
+    Write-Host "Abrindo MAS Tool..." -ForegroundColor Yellow
+    # Executa o comando web do MAS
+    iex (irm https://get.activated.win)
+} else {
+    Write-Host "Pulando ativacao." -ForegroundColor Gray
+}
 
-Write-Host "`n✅ SETUP CONCLUIDO!" -ForegroundColor Green
 Read-Host "Pressione Enter para sair..."
