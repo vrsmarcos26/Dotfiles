@@ -163,11 +163,19 @@ function Instalar-Office {
 # 🪟 FUNÇÃO EFEITO GLASS (ExplorerBlurMica)
 # ==============================================================================
 function Instalar-Mica {
+
+    $InstallDir = "C:\Glass"
+
+    # VERIFICAÇÃO NOVA: Se a pasta já existe, avisa e sai (ou força atualização se preferir)
+    if (Test-Path "$InstallDir\ExplorerBlurMica.dll") {
+        Write-Host ">>> Efeito Glass ja instalado em $InstallDir. Pulando." -ForegroundColor Green
+        return 
+    }
+
     Write-Host "`n>>> Configurando Efeito Glass (Glass)..." -ForegroundColor Cyan
     
     # Define caminhos
     $SourceDir = "$PSScriptRoot\Glass" # Pasta junto do script
-    $InstallDir = "C:\Glass"     # Local seguro de instalação
     $DllFile = "$InstallDir\ExplorerBlurMica.dll"
 
     # Verifica se os arquivos de origem existem
@@ -420,6 +428,7 @@ if ($GPU.Name -match "NVIDIA") {
     Write-Host "Nenhuma GPU gamer dedicada detectada pelo script." -ForegroundColor Gray
 } 
 #> 
+
 
 
 
