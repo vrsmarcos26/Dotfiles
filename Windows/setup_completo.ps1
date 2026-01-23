@@ -75,6 +75,13 @@ function Instalar-Lista ($NomeLista, $ArrayApps) {
 # 📚 INSTALAR PACOTE OFFICE
 # ==============================================================================
 function Instalar-Office {
+
+    # VERIFICAÇÃO NOVA: Se o Word existe, pula a instalação
+    if (Test-Path "C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE") {
+        Write-Host ">>> O Office ja esta instalado. Pulando etapa." -ForegroundColor Green
+        return
+    }
+
     Write-Host "`n>>> Iniciando instalacao do Microsoft Office 2024..." -ForegroundColor Cyan
     
     $OfficeDir = "C:\OfficeTemp"
@@ -428,6 +435,7 @@ if ($GPU.Name -match "NVIDIA") {
     Write-Host "Nenhuma GPU gamer dedicada detectada pelo script." -ForegroundColor Gray
 } 
 #> 
+
 
 
 
