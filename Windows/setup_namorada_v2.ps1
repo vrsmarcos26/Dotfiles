@@ -1,17 +1,25 @@
 <#
 .SYNOPSIS
-    Script de Setup "Kit Namorada V2" - Gamer Leigo & Visual Clean
-    Autor: Adaptado por Gemini para vrsmarcos26
+    Script de Setup Automático - Perfil CyberSec & Dev
+    Autor: vrsmarcos26
+    
+.DESCRIPTION
+    Instala softwares divididos por categorias e configura o Windows.
+    Para adicionar apps, basta editar as listas no início do script.
 #>
 
+# ==============================================================================
+# 🔠 CORREÇÃO DE TEXTO (UTF-8)
+# ==============================================================================
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 # ==============================================================================
-# 🔍 VERIFICAÇÃO DE ADMIN
+# 🔍 PRÉ-REQUISITOS (Verificação do Winget)
 # ==============================================================================
-if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Host "⚠️ POR FAVOR, EXECUTE ESTE SCRIPT COMO ADMINISTRADOR!" -ForegroundColor Red
-    Start-Sleep -s 5
+if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+    Write-Host "ERRO CRITICO: O 'Winget' nao foi encontrado." -ForegroundColor Red
+    Write-Host "Por favor, instale o 'App Installer' na Microsoft Store."
+    Read-Host "Pressione Enter para sair..."
     Exit
 }
 
@@ -33,17 +41,20 @@ $AppsGames = @(
 )
 
 $AppsMedia = @(
-    "Spotify.Spotify"
+    "9NCBCSZSJRSB",
+    "RamenSoftware.Windhawk"
 )
 
 # ==============================================================================
-# ⚙️ INSTALAÇÃO DE APPS
+# ⚙️ LÓGICA DE INSTALAÇÃO
 # ==============================================================================
 
 function Instalar-Lista ($NomeLista, $ArrayApps) {
-    Write-Host "`n>>> Instalando categoria: $NomeLista..." -ForegroundColor Cyan
+    Write-Host "`n>>> Iniciando categoria: $NomeLista..." -ForegroundColor Cyan
+
     foreach ($AppID in $ArrayApps) {
         Write-Host "Instalando $AppID..." -ForegroundColor Yellow
+        # Tenta instalar ou atualizar se já existir
         winget install --id $AppID -e --accept-source-agreements --accept-package-agreements --silent
     }
 }
