@@ -22,7 +22,7 @@ $AppsSecurity = @(
     "Proton.ProtonVPN",
     "Bitwarden.Bitwarden",
     "Malwarebytes.Malwarebytes",
-    "Filen.Filen" 
+    "FilenCloud.FilenSync" 
 )
 
 $AppsDev = @(
@@ -32,7 +32,7 @@ $AppsDev = @(
     "Google.AndroidStudio",
     "Docker.DockerDesktop",
     "RARLab.WinRAR",                
-    "Arduino.IDE",
+    "ArduinoSA.IDE.stable",
     "Oracle.VirtualBox",
     "VMware.WorkstationPro"
 )
@@ -40,7 +40,7 @@ $AppsDev = @(
 $AppsLazer = @(
     "Valve.Steam",
     "EpicGames.EpicGamesLauncher",
-    "Spotify.Spotify",
+    "9NCBCSZSJRSB",
     "Discord.Discord",
     "WhirlwindFX.SignalRgb",
     "RamenSoftware.Windhawk"
