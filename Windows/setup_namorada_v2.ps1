@@ -63,6 +63,13 @@ function Instalar-Lista ($NomeLista, $ArrayApps) {
 # 📚 INSTALAR PACOTE OFFICE
 # ==============================================================================
 function Instalar-Office {
+
+    # VERIFICAÇÃO NOVA: Se o Word existe, pula a instalação
+    if (Test-Path "C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE") {
+        Write-Host ">>> O Office ja esta instalado. Pulando etapa." -ForegroundColor Green
+        return
+    }
+    
     Write-Host "`n>>> Iniciando instalacao do Microsoft Office 2024..." -ForegroundColor Cyan
     
     $OfficeDir = "C:\OfficeTemp"
@@ -151,11 +158,19 @@ function Instalar-Office {
 # 🪟 FUNÇÃO EFEITO GLASS (ExplorerBlurMica)
 # ==============================================================================
 function Instalar-Mica {
+
+    $InstallDir = "C:\Glass"
+    
+    # VERIFICAÇÃO NOVA: Se a pasta já existe, avisa e sai (ou força atualização se preferir)
+    if (Test-Path "$InstallDir\ExplorerBlurMica.dll") {
+        Write-Host ">>> Efeito Glass ja instalado em $InstallDir. Pulando." -ForegroundColor Green
+        return 
+    }
+    
     Write-Host "`n>>> Configurando Efeito Glass (Glass)..." -ForegroundColor Cyan
     
     # Define caminhos
     $SourceDir = "$PSScriptRoot\Glass" # Pasta junto do script
-    $InstallDir = "C:\Glass"     # Local seguro de instalação
     $DllFile = "$InstallDir\ExplorerBlurMica.dll"
 
     # Verifica se os arquivos de origem existem
