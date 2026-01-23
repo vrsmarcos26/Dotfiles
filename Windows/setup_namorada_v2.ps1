@@ -183,13 +183,30 @@ function Instalar-Mica {
     }
 }
 
+# ==============================================================================
+# 🚀 EXECUÇÃO PRINCIPAL
+# ==============================================================================
 
-# Executa Instalações
-Instalar-Lista "GERAL & UTILITARIOS" $AppsGeral
-Instalar-Lista "GAMES & COMUNICACAO" $AppsGames
-Instalar-Lista "MULTIMIDIA" $AppsMedia
+# Verificação de Administrador
+if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Host "POR FAVOR, EXECUTE ESTE SCRIPT COMO ADMINISTRADOR!" -ForegroundColor Red
+    Start-Sleep -s 5
+    Exit
+}
+
+# Executando as Instalações
+winget source reset --force
+winget source update
+winget --version
+
+Instalar-Lista "SEGURANCA" $AppsSecurity
+Instalar-Lista "DESENVOLVIMENTO" $AppsDev
+Instalar-Lista "LAZER" $AppsLazer
+
+# Instalação do Office Dedicada
 Instalar-Office
 
+# Efeito Glass
 Instalar-Mica
 
 # ==============================================================================
