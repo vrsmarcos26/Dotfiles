@@ -143,6 +143,12 @@ winget search "NomeDoPrograma"
 
 ---
 
+## 🐧 Como Personalizar (Linux)
+
+🚧 **Status: Em Desenvolvimento**
+
+---
+
 ## 👤 Autor
 
 **Marcos Vinícius Rocha Silva**
