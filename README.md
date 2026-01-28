@@ -147,6 +147,15 @@ winget search "NomeDoPrograma"
 
 🚧 **Status: Em Desenvolvimento**
 
+Sempre olhar os sites:
+
+- Colloid Icons: https://www.cinnamon-look.org/p/1661983 
+- Colloid GTK Theme: https://www.cinnamon-look.org/p/1661959
+- Orchis GTK Theme: https://www.cinnamon-look.org/p/1357889
+- Jasper GTK Theme: https://www.cinnamon-look.org/p/1891521
+- Wallpapers: https://drive.google.com/drive/folder...
+- Ajuste da Hora: https://www.foragoodstrftime.com/
+
 ---
 
 ## 👤 Autor
