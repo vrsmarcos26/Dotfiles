@@ -21,7 +21,7 @@ NC='\033[0m'
 
 # Apps Nativos (.deb/apt)
 APPS_APT=(
-    "git" "curl" "wget" "python3-pip" "build-essential"
+    "git" "curl" "wget" "python3-pip" "build-essential" "dbus-x11"
     "virtualbox"              # VirtualBox
     "gamemode"                # GameMode
     "conky-all"               # Conky
@@ -64,11 +64,13 @@ CONFIG_DIR="$BASE_DIR/configs"
 
 echo -e "${CYAN}>>> INICIANDO SETUP ZORIN OS...${NC}"
 
-# 1. TIMESHIFT (SEGURANÇA PRIMEIRO)
+# ==============================================================================
+# 🛡️ 1. SEGURANÇA E PREPARAÇÃO
+# ==============================================================================
 echo "Instalando TimeShift para garantir reversão..."
 if ! command -v timeshift &> /dev/null; then
     echo "Instalando TimeShift..."
-    sudo apt update -y && sudo apt upgrade -y && sudo apt install timeshift -y
+    sudo apt update && sudo apt upgrade -y && sudo apt install timeshift -y
 
 fi
 
@@ -172,9 +174,12 @@ for app in "${APPS_FLATPAK[@]}"; do flatpak install flathub "$app" -y; done
 # Fastfetch (Geralmente precisa baixar o .deb ou via brew, mas vamos tentar repo padrão ou ppa)
 # Adicionando PPA para fastfetch se necessário, ou baixando direto
 if ! command -v fastfetch &> /dev/null; then
-    echo -e "${YELLOW}Ferramenta 'fastfetch' não encontrada. Instalando...${NC}" 
-    sudo add-apt-repository ppa:zhangsongcui3336/fastfetch -y 2>/dev/null
-    sudo apt update && sudo apt install fastfetch -y 
+    echo "Baixando Fastfetch oficial (GitHub)..."
+    # Pega a última versão .deb do GitHub
+    TEMP_DEB="$(mktemp)"
+    wget -O "$TEMP_DEB" "https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb"
+    sudo apt install "$TEMP_DEB" -y
+    rm "$TEMP_DEB"
 fi
 
 # ==============================================================================
