@@ -4,6 +4,14 @@
 
 # --- LISTAS DE APPS (FÁCIL DE EDITAR) ---
 
+# --- TRAVA DE SEGURANÇA: NÃO RODAR COMO ROOT ---
+if [ "$EUID" -eq 0 ]; then
+  echo -e "${RED}ERRO: Não rode este script como sudo/root!${NC}"
+  echo "Rode apenas: ./setup.sh"
+  echo "O script pedirá a senha quando necessário."
+  exit 1
+fi
+
 # --- CORES ---
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -164,8 +172,9 @@ for app in "${APPS_FLATPAK[@]}"; do flatpak install flathub "$app" -y; done
 # Fastfetch (Geralmente precisa baixar o .deb ou via brew, mas vamos tentar repo padrão ou ppa)
 # Adicionando PPA para fastfetch se necessário, ou baixando direto
 if ! command -v fastfetch &> /dev/null; then
+    echo -e "${YELLOW}Ferramenta 'fastfetch' não encontrada. Instalando...${NC}" 
     sudo add-apt-repository ppa:zhangsongcui3336/fastfetch -y 2>/dev/null
-    sudo apt update && sudo apt install fastfetch -y
+    sudo apt update && sudo apt install fastfetch -y 
 fi
 
 # ==============================================================================
@@ -188,7 +197,7 @@ mkdir -p "$HOME/.config/autostart" "$HOME/.local/share/applications"
 
 # OpenRGB Udev Rules (Para não pedir senha toda hora, mas rodar como root se precisar)
 # Baixa as regras oficiais para permitir controle de hardware
-curl -fsSL https://openrgb.org/releases/release_0.9/60-openrgb.rules | sudo tee /etc/udev/rules.d/60-openrgb.rules
+curl -fsSL https://openrgb.org/releases/release_0.9/60-openrgb.rules | sudo tee /etc/udev/rules.d/60-openrgb.rules > /dev/null
 sudo udevadm control --reload-rules && sudo udevadm trigger
 
 # ==============================================================================
