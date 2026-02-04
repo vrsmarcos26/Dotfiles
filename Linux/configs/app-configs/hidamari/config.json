@@ -1,0 +1,19 @@
+{
+   "version": 4,
+   "mode": "MODE_VIDEO",
+   "data_source": {
+      "DP-2": "/home/vrsmarcos26/V\u00eddeos/Hidamari/nevecaindo.mp4",
+      "Default": "/home/vrsmarcos26/Videos/Hidamari/nevecaindo.mp4",
+      "DisplayPort-1": "/home/vrsmarcos26/Videos/Hidamari/nevecaindo.mp4"
+   },
+   "is_mute": false,
+   "audio_volume": 50,
+   "is_static_wallpaper": true,
+   "static_wallpaper_blur_radius": 5,
+   "is_pause_when_maximized": true,
+   "is_mute_when_maximized": false,
+   "fade_duration_sec": 1.5,
+   "fade_interval": 0.1,
+   "is_show_systray": false,
+   "is_first_time": false
+}
