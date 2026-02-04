@@ -175,10 +175,11 @@ for app in "${APPS_FLATPAK[@]}"; do flatpak install flathub "$app" -y; done
 # Adicionando PPA para fastfetch se necessário, ou baixando direto
 if ! command -v fastfetch &> /dev/null; then
     echo "Baixando Fastfetch oficial (GitHub)..."
-    # Pega a última versão .deb do GitHub
-    TEMP_DEB="$(mktemp)"
+    TEMP_DEB="fastfetch.deb"
     wget -O "$TEMP_DEB" "https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb"
-    sudo apt install "$TEMP_DEB" -y
+    # Usa dpkg -i para instalar arquivo local e apt -f install para dependências
+    sudo dpkg -i "$TEMP_DEB"
+    sudo apt install -f -y
     rm "$TEMP_DEB"
 fi
 
@@ -187,8 +188,43 @@ fi
 # ==============================================================================
 echo -e "${CYAN}>>> Restaurando Configurações...${NC}"
 
+echo "Ativando extensões..."
+gnome-extensions disable dash-to-panel@jderose9.github.com 2>/dev/null
+gnome-extensions enable zorin-taskbar@zorinos.com 2>/dev/null
+gnome-extensions enable zorin-menu@zorinos.com 2>/dev/null
+gnome-extensions enable arcmenu@arcmenu.com 2>/dev/null
+gnome-extensions enable blur-my-shell@aunetx 2>/dev/null
+gnome-extensions enable user-theme@gnome-shell-extensions.gcampax.github.com 2>/dev/null
+
 # Dconf (Geral)
-[ -f "$CONFIG_DIR/dconf/user-settings.conf" ] && dconf load / < "$CONFIG_DIR/dconf/user-settings.conf"
+if [ -f "$CONFIG_DIR/dconf/user-settings.conf" ]; then
+    echo "Restaurando Dconf..."
+    # Tenta método direto primeiro (funciona em 99% dos casos no Zorin 17+)
+    #dconf load / < "$CONFIG_DIR/dconf/user-settings.conf" || \
+    # Se falhar, tenta via dbus-launch explicitamente
+    dbus-launch dconf load / < "$CONFIG_DIR/dconf/user-settings.conf"
+    
+    echo "Dconf carregado."
+fi
+
+echo ">>> Forçando estilo 'Floating Dock' (Correção de Monitor)..."
+
+SCHEMA="org.gnome.shell.extensions.dash-to-panel"
+
+dconf write /$SCHEMA/transparency-mode "'FIXED'"
+dconf write /$SCHEMA/panel-opacity 0
+# Garante que a cor de fundo não interfira
+dconf write /$SCHEMA/panel-element-background-opacity 0
+
+# -- ESTILO FLUTUANTE (Seu Print: Margin 4px, Radius 25px) --
+# Nota: O Zorin pode usar chaves ligeiramente diferentes para margem dependendo da versão,
+# mas estas são as padrão que controlam o encapsulamento.
+dconf write /$SCHEMA/panel-element-padding 4
+dconf write /$SCHEMA/panel-corner-radius 25
+
+# -- POSIÇÃO DOS ÍCONES (Seu Print: Centralizado) --
+dconf write /$SCHEMA/taskbar-position "'CENTEREDMONITOR'"
+dconf write /$SCHEMA/panel-lengths "'{\"0\":100}'" # Mantém 100% de largura, mas a margem cria o efeito flutuante
 
 # Startup & WebApps
 mkdir -p "$HOME/.config/autostart" "$HOME/.local/share/applications"
@@ -196,8 +232,18 @@ mkdir -p "$HOME/.config/autostart" "$HOME/.local/share/applications"
 [ -d "$CONFIG_DIR/webapps" ] && cp -r "$CONFIG_DIR/webapps/"* "$HOME/.local/share/applications/"
 
 # Configs Específicas (Conky, Code, etc)
-[ -d "$CONFIG_DIR/app-configs/conky" ] && mkdir -p "$HOME/.conky" && cp -r "$CONFIG_DIR/app-configs/conky"* "$HOME/.conky/"
-[ -d "$CONFIG_DIR/app-configs/hidamari" ] && DEST="$HOME/.var/app/io.github.jeffshee.Hidamari/config/hidamari" && mkdir -p "$DEST" && cp -r "$CONFIG_DIR/app-configs/hidamari"* "$DEST/"
+if [ -d "$CONFIG_DIR/app-configs/conky" ]; then
+    mkdir -p "$HOME/.conky"
+    cp -r "$CONFIG_DIR/app-configs/conky"* "$HOME/.conky/"
+if
+[ -f "$CONFIG_DIR/app-configs/.conkyrc" ] && cp "$CONFIG_DIR/app-configs/.conkyrc" "$HOME/.conkyrc"
+
+if [ -d "$CONFIG_DIR/app-configs/hidamari" ]; then
+    DEST="$HOME/.var/app/io.github.jeffshee.Hidamari/config/hidamari"
+    mkdir -p "$DEST"
+    cp -r "$CONFIG_DIR/app-configs/hidamari"* "$DEST/"
+fi
+
 [ -f "$CONFIG_DIR/terminal/.bashrc" ] && cp "$CONFIG_DIR/terminal/.bashrc"* "$HOME/.bashrc"
 
 # OpenRGB Udev Rules (Para não pedir senha toda hora, mas rodar como root se precisar)
@@ -231,6 +277,32 @@ if [ -f "$THEME_FILE" ]; then
         # Adiciona o CSS no final do arquivo
         echo -e "$CUSTOM_CSS" | sudo tee -a "$THEME_FILE" > /dev/null
     fi
+fi
+
+# ==============================================================================
+# 5. RESTAURAÇÃO DO WALLPAPER (NOVO)
+# ==============================================================================
+echo ">>> Aplicando Wallpaper..."
+WALL_SRC="$CONFIG_DIR/current_wallpaper.png"
+WALL_DEST="$HOME/Pictures/current_wallpaper.png"
+
+if [ -f "$WALL_SRC" ]; then
+    # Garante que a pasta existe
+    mkdir -p "$HOME/Pictures"
+    
+    # Copia a imagem
+    cp "$WALL_SRC" "$WALL_DEST"
+    
+    # Aplica no GNOME (Modo Claro e Escuro)
+    gsettings set org.gnome.desktop.background picture-uri "file://$WALL_DEST"
+    gsettings set org.gnome.desktop.background picture-uri-dark "file://$WALL_DEST"
+    
+    # Aplica na Tela de Bloqueio (Opcional, mas recomendado)
+    # gsettings set org.gnome.desktop.screensaver picture-uri "file://$WALL_DEST"
+    
+    echo "Wallpaper definido e salvo em $WALL_DEST"
+else
+    echo "Nenhum backup de wallpaper encontrado."
 fi
 
 # ==============================================================================
