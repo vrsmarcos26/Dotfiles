@@ -31,6 +31,7 @@ mkdir -p "$CONFIG_DIR/app-configs/OpenRGB"
 mkdir -p "$CONFIG_DIR/startup"
 mkdir -p "$CONFIG_DIR/webapps"
 mkdir -p "$CONFIG_DIR/terminal"
+mkdir -p "$CONFIG_DIR/grub"
 
 # ==============================================================================
 # 2. DCONF (Configurações do sistema)
@@ -83,5 +84,20 @@ fi
 if [ -f "$HOME/.bashrc" ]; then
     cp "$HOME/.bashrc" "$CONFIG_DIR/terminal/"
 fi
+
+# ==============================================================================
+# 5. BACKUP DO GRUB (BOOTLOADER)
+# ==============================================================================
+echo "Backupping GRUB themes..."
+
+# Salva temas customizados (se existirem)
+if [ -d "/usr/share/grub/themes" ]; then
+    sudo cp -r /usr/share/grub/themes/* "$CONFIG_DIR/grub/" 2>/dev/null
+elif [ -d "/boot/grub/themes" ]; then
+    sudo cp -r /boot/grub/themes/* "$CONFIG_DIR/grub/" 2>/dev/null
+fi
+
+# Salva o arquivo de configuração para consultarmos depois
+cp /etc/default/grub "$CONFIG_DIR/grub/grub_config_backup"
 
 echo -e "${GREEN}>>> BACKUP CONCLUÍDO! Verifique a pasta 'configs'.${NC}"

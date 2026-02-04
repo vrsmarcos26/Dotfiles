@@ -219,4 +219,42 @@ if [ -f "$THEME_FILE" ]; then
     fi
 fi
 
+# ==============================================================================
+# 6. CONFIGURAÇÃO DO GRUB (TEMA EM /usr/share)
+# ==============================================================================
+echo -e "${CYAN}>>> Configurando Tema do GRUB...${NC}"
+
+GRUB_BACKUP="$CONFIG_DIR/grub"
+SYSTEM_THEME_DIR="/usr/share/grub/themes"
+
+if [ -d "$GRUB_BACKUP" ]; then
+    # Verifica se tem arquivos de tema (não está vazia)
+    if [ "$(ls -A $GRUB_BACKUP)" ]; then
+        echo "Restaurando temas para $SYSTEM_THEME_DIR..."
+        sudo mkdir -p "$SYSTEM_THEME_DIR"
+        sudo cp -r "$GRUB_BACKUP/"* "$SYSTEM_THEME_DIR/"
+
+        # Pega o nome do primeiro tema encontrado que não seja arquivo solto
+        THEME_NAME=$(ls -d "$GRUB_BACKUP"/*/ | head -n 1 | xargs basename 2>/dev/null)
+        
+        if [ ! -z "$THEME_NAME" ] && [ -f "$SYSTEM_THEME_DIR/$THEME_NAME/theme.txt" ]; then
+            echo "Ativando tema: $THEME_NAME"
+            
+            # Ajusta o /etc/default/grub
+            sudo sed -i 's/^GRUB_THEME=/#GRUB_THEME=/' /etc/default/grub
+            # Garante que a linha GRUB_TERMINAL_OUTPUT="console" esteja comentada para gráfico funcionar
+            sudo sed -i 's/^GRUB_TERMINAL_OUTPUT="console"/#GRUB_TERMINAL_OUTPUT="console"/' /etc/default/grub
+            
+            echo "GRUB_THEME=\"$SYSTEM_THEME_DIR/$THEME_NAME/theme.txt\"" | sudo tee -a /etc/default/grub > /dev/null
+            
+            echo "Atualizando GRUB..."
+            sudo update-grub
+        else
+            echo "Tema copiado, mas nenhum 'theme.txt' válido encontrado para ativar automaticamente."
+        fi
+    else
+        echo "Pasta de backup do GRUB está vazia."
+    fi
+fi
+
 echo -e "${GREEN}>>> SETUP CONCLUÍDO! REINICIE O SISTEMA PARA APLICAR DRIVERS E TEMA.${NC}"
