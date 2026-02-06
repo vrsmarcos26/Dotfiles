@@ -128,15 +128,33 @@ echo -e "${GREEN}Configurações de Limpeza e Histórico ativadas.${NC}"
 
 # Aplicando DNS Seguro (Cloudflare)
 echo -e "${YELLOW}Configurando DNS seguro (Cloudflare)...${NC}"
-CONN=$(nmcli -t -f NAME connection show --active | head -n1)
-if [ -n "$CONN" ]; then
-    echo "Configurando DNS para a conexão: $CONN"
-    sudo nmcli con mod "$CONN" ipv4.dns "1.1.1.1 1.0.0.1"
-    sudo nmcli con mod "$CONN" ipv4.ignore-auto-dns yes
-    sudo nmcli con up "$CONN"
-    echo -e "${GREEN}DNS seguro configurado.${NC}"
+
+# 1. Descobre a interface física que tem a rota para a internet (Ex: wlan0, eth0)
+DEFAULT_DEV=$(ip route get 1.1.1.1 | sed -n 's/.*dev \([^\ ]*\).*/\1/p' | head -n1)
+
+if [ -n "$DEFAULT_DEV" ]; then
+    # 2. Descobre o NOME da conexão do NetworkManager associada a essa interface
+    # O comando abaixo lista NOME:DEVICE, filtra pelo device achado e corta para pegar só o NOME
+    CONN=$(nmcli -t -f NAME,DEVICE connection show --active | grep ":${DEFAULT_DEV}$" | cut -d: -f1 | head -n1)
+
+    if [ -n "$CONN" ]; then
+        echo "Interface principal detectada: $DEFAULT_DEV"
+        echo "Configurando DNS para a conexão: $CONN"
+        
+        # Configura o DNS
+        sudo nmcli con mod "$CONN" ipv4.dns "1.1.1.1 1.0.0.1"
+        sudo nmcli con mod "$CONN" ipv4.ignore-auto-dns yes
+        
+        # Reinicia a conexão para aplicar (sem derrubar tudo abruptamente)
+        echo "Aplicando alterações..."
+        sudo nmcli con up "$CONN"
+        
+        echo -e "${GREEN}DNS seguro configurado na conexão principal.${NC}"
+    else
+        echo -e "${RED}Erro: Não foi possível identificar o nome da conexão para a interface $DEFAULT_DEV.${NC}"
+    fi
 else
-    echo "Nenhuma conexão ativa encontrada."
+    echo -e "${RED}Nenhuma rota para a internet encontrada. Pulei a configuração de DNS.${NC}"
 fi
 
 # ===========================================================================
@@ -377,24 +395,12 @@ APPS_FLATPAK=(
 
 echo -e "${CYAN}>>> Instalando Apps APT...${NC}"
 
-for app in "${APPS_APT[@]}"; do sudo apt install -y "$app"; done
+sudo apt install -y "${APPS_APT[@]}"
 
 echo ">>> Instalando Apps Flatpak..."
 if ! command -v flatpak &> /dev/null; then sudo apt install flatpak -y; fi
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 for app in "${APPS_FLATPAK[@]}"; do flatpak install flathub "$app" -y; done
-
-# Fastfetch (Geralmente precisa baixar o .deb ou via brew, mas vamos tentar repo padrão ou ppa)
-# Adicionando PPA para fastfetch se necessário, ou baixando direto
-if ! command -v fastfetch &> /dev/null; then
-    echo "Baixando Fastfetch oficial (GitHub)..."
-    TEMP_DEB="fastfetch.deb"
-    wget -O "$TEMP_DEB" "https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb"
-    # Usa dpkg -i para instalar arquivo local e apt -f install para dependências
-    sudo dpkg -i "$TEMP_DEB"
-    sudo apt install -f -y
-    rm "$TEMP_DEB"
-fi
 
 
 # Instalando Aplicativos de Segurança
