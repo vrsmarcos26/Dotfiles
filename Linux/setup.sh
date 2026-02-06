@@ -98,16 +98,16 @@ fi
 
 # Proteção de Tela (Notificações na tela de bloqueio)
 echo -e "${YELLOW}Verificando proteção de tela...${NC}"
-if command -v gsettings get org.gnome.desktop.notifications show-in-lock-screen | grep -q "true"; then
-    echo "Ativando proteção de tela..."
-    gsettings set org.gnome.desktop.notifications show-in-lock-screen true
+if ! gsettings get org.gnome.desktop.notifications show-in-lock-screen | grep -q "true"; then
+    echo "Removendo notificação da tela de Bloqueio ..."
+    gsettings set org.gnome.desktop.notifications show-in-lock-screen false
 else
     echo -e "${GREEN}Proteção de tela já está ativa.${NC}"
 fi
 
 # Localização
 echo -e "${YELLOW}Verificando localização...${NC}"
-if command -v gsettings get org.gnome.system.location enabled | grep -q "false"; then
+if gsettings get org.gnome.system.location enabled | grep -q "true"; then
     echo "Desativando localização..."
     gsettings set org.gnome.system.location enabled false
 else
@@ -116,7 +116,7 @@ fi
 
 # Historico e Limpeza Automática
 echo -e "${YELLOW}Configurando limpeza automática...${NC}"
-if command -v gsettings get org.gnome.desktop.privacy remember-recent-files | grep -q "false"; then
+if gsettings get org.gnome.desktop.privacy remember-recent-files | grep -q "false"; then
     echo "Ativando histórico"
     gsettings set org.gnome.desktop.privacy remember-recent-files true
 else
@@ -124,9 +124,10 @@ else
   gsettings set org.gnome.desktop.privacy recent-files-max-age -1
 fi
 
-if command -v gsettings get org.gnome.desktop.privacy remove-old-temp-files | grep -q "false" && gsettings get org.gnome.desktop.privacy remove-old-trash-files | grep -q "false"; then
+if gsettings get org.gnome.desktop.privacy remove-old-temp-files | grep -q "false" || gsettings get org.gnome.desktop.privacy remove-old-trash-files | grep -q "false"; then
     echo "Ativando remoção automática de arquivos..."
     gsettings set org.gnome.desktop.privacy remove-old-temp-files true
+    gsettings set org.gnome.desktop.privacy remove-old-trash-files true
 else
     echo "Remoção automática de arquivos já ativada. COnfigurando para 30 dias..."
     gsettings set org.gnome.desktop.privacy old-files-age 30
@@ -298,6 +299,8 @@ sudo ./install.sh -b -t vimix -s 1080p
 echo "Atualizando configurações do boot..."
 sudo update-grub
 
+cd ~/Downloads/Dotfiles/Linux
+
 echo -e "${GREEN}Tema do GRUB instalado!${NC}"
 
 # ==============================================================================
@@ -434,7 +437,7 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 echo -e "${GREEN}Aplicativos de segurança instalados.${NC}"
 
 # ==============================================================================
-# 4. Configuração Visual
+# 4. Configuração Visual 
 # ==============================================================================
 
 echo -e "${YELLOW}>>> Configurando visual...${NC}"
@@ -504,13 +507,13 @@ gsettings set org.gnome.shell.extensions.zorin-taskbar intellihide true
 # Margem da barra
 gsettings set org.gnome.shell.extensions.zorin-taskbar panel-margin 4
 # Arredondamento dos cantos
-gsettings set org.gnome.shell.extensions.zorin-taskbar global-border-radius 25
+gsettings set org.gnome.shell.extensions.zorin-taskbar global-border-radius 5
 # Sobrepor o tema Override
 gsettings set org.gnome.shell.extensions.zorin-taskbar trans-use-custom-opacity true
 # Opacidade personalizada (transparente 0.0 = 0%, 1.0 = 100%)
 gsettings set org.gnome.shell.extensions.zorin-taskbar trans-panel-opacity 0.0
 # Posição da barra (BOTTOM, TOP, LEFT, RIGHT)
-gsettings set org.gnome.shell.extensions.zorin-taskbar panel-positions 'BOTTOM'
+# gsettings set org.gnome.shell.extensions.zorin-taskbar panel-positions 'BOTTOM'
 # Tamanho dos ícones (Pequeno = 24, Médio = 37, Grande = 40)
 gsettings set org.gnome.shell.extensions.zorin-taskbar panel-sizes '{"0":37}'
 # Usar 100% da barra
@@ -535,12 +538,12 @@ if [ ! -f "$THEME_FILE" ]; then THEME_FILE="/usr/share/gnome-shell/theme/gnome-s
 CUSTOM_CSS="
 /* --- CUSTOMIZACAO DO MARCOS --- */
 .popup-menu-content {
-    background-color: rgba(34, 43, 48, 0.45) !important;
+    background-color: rgba(34, 43, 48, 0.45) \!important;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
 }
 #mode-dark .popup-menu-content, 
 .popup-menu-content.panel-menu {
-     background-color: rgba(34, 43, 48, 0.45) !important;
+     background-color: rgba(34, 43, 48, 0.45) \!important;
 }
 "
 
@@ -568,7 +571,9 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 cp "$SCRIPT_DIR/Wallpapers/White/"*.png "$WALLPAPER_DIR/"
 cp "$SCRIPT_DIR/Wallpapers/Vermelho/"*.png "$WALLPAPER_DIR/"
 
-gsettings set org.gnome.desktop.background picture-uri-dark "file://$WALLPAPER_DIR/White/white.png"
+cp "$WALLPAPER_DIR/"*.png "$HOME/.local/share/backgrounds/"
+
+gsettings set org.gnome.desktop.background picture-uri-dark "file:///$HOME/.local/share/backgrounds/white.png"
 
 echo "Configurações de wallpaper STATICO aplicadas."
 
@@ -593,7 +598,7 @@ cat <<EOF > "$CONFIG_DIR/config.json"
    "version": 4,
    "mode": "MODE_VIDEO",
    "data_source": {
-      "Default": "$WALLPAPER_ANIMATION_DIR/wallpaper.mp4"
+      "Default": "$WALLPAPER_ANIMATION_DIR/white.mp4"
    },
    "is_mute": true,
    "audio_volume": 50,
@@ -614,7 +619,7 @@ mkdir -p "$AUTOSTART_DIR"
 cat <<EOF > "$AUTOSTART_DIR/io.github.jeffshee.Hidamari.desktop"
 [Desktop Entry]
 Type=Application
-Exec=flatpak run io.github.jeffshee.Hidamari --sys-startup
+Exec=flatpak run --command=hidamari io.github.jeffshee.Hidamari -b
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
@@ -693,10 +698,10 @@ NoDisplay=false
 EOF
 
 
-sudo add-apt-repository ppa:tomtomtom/conky-manager
+sudo add-apt-repository ppa:tomtomtom/conky-manager -y
 sudo add-apt-repository --remove ppa:teejee2008/ppa -y
-sudo apt update
-sudo apt install conky-manager2
+sudo apt update -y
+sudo apt install conky-manager2 -y
 
 
 
@@ -852,4 +857,4 @@ sleep 5
 busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart("Restarting...")' 2>/dev/null
 
 echo -e "${YELLOW}>>> Lembrar de que alguns aplicativos são melhores instalados pela web e alguns precisam configurar${NC}"
-echo -e "${YELLOW}IMPORTANTE: Faça LOGOFF e LOGIN para aplicar todas as mudanças visuais.${NC}"
+echo -e "${YELLOW}IMPORTANTE: Faça LOGOFF e LOGIN para aplicar todas as mudanças visuais.${NC}"vs
