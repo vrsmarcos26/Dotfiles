@@ -78,7 +78,7 @@ echo -e "${YELLOW}Ativando FIrewall...${NC}"
 if ! command -v ufw &> /dev/null; then
     echo "Instalando Firewall..."
     sudo apt install ufw -y && sudo apt install gufw -y
-elif ! sudo ufw status | grep -q "Status: inactive"; then
+elif sudo ufw status | grep -q "Status: inactive"; then
     echo "Ativando Firewall..."
     sudo ufw enable
 else
@@ -90,7 +90,7 @@ fi
 
 # Proteção de Tela (Notificações na tela de bloqueio)
 echo -e "${YELLOW}Verificando proteção de tela...${NC}"
-if ! command -v gsettings get org.gnome.desktop.notifications show-in-lock-screen | grep -q "true"; then
+if command -v gsettings get org.gnome.desktop.notifications show-in-lock-screen | grep -q "true"; then
     echo "Ativando proteção de tela..."
     gsettings set org.gnome.desktop.notifications show-in-lock-screen true
 else
@@ -99,7 +99,7 @@ fi
 
 # Localização
 echo -e "${YELLOW}Verificando localização...${NC}"
-if ! command -v gsettings get org.gnome.system.location enabled | grep -q "false"; then
+if command -v gsettings get org.gnome.system.location enabled | grep -q "false"; then
     echo "Desativando localização..."
     gsettings set org.gnome.system.location enabled false
 else
@@ -108,7 +108,7 @@ fi
 
 # Historico e Limpeza Automática
 echo -e "${YELLOW}Configurando limpeza automática...${NC}"
-if ! command -v gsettings get org.gnome.desktop.privacy remember-recent-files | grep -q "false"; then
+if command -v gsettings get org.gnome.desktop.privacy remember-recent-files | grep -q "false"; then
     echo "Ativando histórico"
     gsettings set org.gnome.desktop.privacy remember-recent-files true
 else
@@ -116,7 +116,7 @@ else
   gsettings set org.gnome.desktop.privacy recent-files-max-age -1
 fi
 
-if ! command -v gsettings get org.gnome.desktop.privacy remove-old-temp-files | grep -q "false" && gsettings get org.gnome.desktop.privacy remove-old-trash-files | grep -q "false"; then
+if command -v gsettings get org.gnome.desktop.privacy remove-old-temp-files | grep -q "false" && gsettings get org.gnome.desktop.privacy remove-old-trash-files | grep -q "false"; then
     echo "Ativando remoção automática de arquivos..."
     gsettings set org.gnome.desktop.privacy remove-old-temp-files true
 else
@@ -836,4 +836,5 @@ sleep 5
 # Tenta reiniciar o Shell (Funciona no X11)
 busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart("Restarting...")' 2>/dev/null
 
+echo -e "${YELLOW}>>> Lembrar de que alguns aplicativos são melhores instalados pela web e alguns precisam configurar${NC}"
 echo -e "${YELLOW}IMPORTANTE: Faça LOGOFF e LOGIN para aplicar todas as mudanças visuais.${NC}"
