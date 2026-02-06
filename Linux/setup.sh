@@ -4,6 +4,12 @@
 
 # --- LISTAS DE APPS (FÁCIL DE EDITAR) ---
 
+# PARA TESTES EM VM, FAÇA O SEGUINTE AJUSTE:
+# COMENTE A SESSÃO TIMESHIFT (LINHAS 42-70)
+# COMENTE A SESSÃO DE GPU
+# COMENTE EFEITOS 3D
+# COMENTE GRUB
+
 # --- TRAVA DE SEGURANÇA: NÃO RODAR COMO ROOT ---
 if [ "$EUID" -eq 0 ]; then
   echo -e "${RED}ERRO: Não rode este script como sudo/root!${NC}"
@@ -56,6 +62,7 @@ echo "5. CLIQUE EM 'CRIAR' PARA FAZER O SNAPSHOT DE AGORA!"
 echo "================================================================="
 echo ""
 
+: << 'COMENTARIO'
 while true; do
     read -p "Você configurou o TimeShift e criou o Snapshot inicial? (DIGITE 'SIM' PARA CONTINUAR): " sn
     case $sn in
@@ -63,6 +70,7 @@ while true; do
         * ) echo "Por favor, configure o TimeShift primeiro.";;
     esac
 done
+COMENTARIO
 
 echo ">>> Continuando instalação..."
 
@@ -237,6 +245,7 @@ else
     echo "Fabricante de CPU desconhecido ($CPU_VENDOR). Pulando microcode."
 fi
 
+: << 'COMENTARIO'
 # --- DETECÇÃO DE PLACA DE VÍDEO (GPU) ---
 # lspci lista o hardware, grep filtra VGA/3D controller
 GPU_INFO=$(lspci | grep -i -E "vga|3d")
@@ -271,7 +280,7 @@ elif echo "$GPU_INFO" | grep -qi "intel"; then
     sudo apt install -y intel-media-driver mesa-vulkan-drivers mesa-utils
 fi
 
-
+COMENTARIO
 # ==============================================================================
 # 2. CONFIGURAÇÃO DO GRUB
 # ==============================================================================
@@ -462,9 +471,9 @@ gsettings set org.gnome.desktop.interface clock-show-weekday false
 # Ativando Efeitos Cube & Spatial Window Switcher (Alt+Tab 3D)
 echo "Ativando efeitos 3D..."
 # Cube
-gnome-extensions enable zorin-desktop-cube@zorinos.com
+#gnome-extensions enable zorin-desktop-cube@zorinos.com
 # Spatial Window Switcher
-gnome-extensions enable zorin-spatial-window-switcher@zorinos.com
+#gnome-extensions enable zorin-spatial-window-switcher@zorinos.com
 
 # Luz Noturna
 echo "Configurando Luz Noturna..."
