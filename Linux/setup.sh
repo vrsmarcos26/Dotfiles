@@ -616,22 +616,14 @@ cat <<EOF > "$CONFIG_DIR/config.json"
 }
 EOF
 
-AUTOSTART_DIR="$HOME/.config/autostart"
-mkdir -p "$AUTOSTART_DIR"
-
-cat <<EOF > "$AUTOSTART_DIR/io.github.jeffshee.Hidamari.desktop"
-[Desktop Entry]
-Type=Application
-Exec=flatpak run --command=hidamari io.github.jeffshee.Hidamari -b
-Hidden=false
-NoDisplay=false
-X-GNOME-Autostart-enabled=true
-Name=Hidamari
-Comment=Start Wallpaper Animation
-X-GNOME-Autostart-Delay=5
-EOF
-
-echo "Hidamari configurado! Reinicie após adicionar o vídeo."
+echo ""
+echo "========================================================"
+echo "   INSTALAÇÃO CONCLUÍDA COM SUCESSO!"
+echo "========================================================"
+echo "1. Abra o menu do Zorin e procure por 'Hidamari'."
+echo "2. Procure pelo simbolo do hamburguer"
+echo "3. Selecione \"Iniciar com o computador\" e ative a opção."
+echo "========================================================"
 
 # ==============================================================================
 # CONFIGURAÇÃO CONKY
@@ -640,6 +632,10 @@ echo "Hidamari configurado! Reinicie após adicionar o vídeo."
 echo -e "${YELLOW}>>> Configurando Conky...${NC}"
 
 sudo apt install conky-all -y
+sudo add-apt-repository ppa:tomtomtom/conky-manager -y
+sudo add-apt-repository --remove ppa:teejee2008/ppa -y
+sudo apt update -y
+sudo apt install conky-manager2
 
 THEME_DIR="$HOME/.conky/Gotham"
 mkdir -p "$THEME_DIR"
@@ -679,32 +675,22 @@ net_avg_samples 1
 override_utf8_locale yes
 use_spacer yes
 
+
 minimum_size 0 0
 TEXT
-${voffset 10}${color EAEAEA}${font GE Inspira:pixelsize=120}${time %I:%M}${font}${voffset -84}${offset 10}${color FFA300}${font GE Inspira:pixelsize=42}${time %d} ${voffset -15}${color EAEAEA}${font GE Inspira:pixelsize=22}${time %B} ${time %Y}${font}${voffset 24}${font GE Inspira:pixelsize=58}${offset -148}${time %A}${font}
+${voffset 10}${color EAEAEA}${font GE Inspira:pixelsize=120}${time %I:%M}${font}${voffset -84}${offset 10}${color FFA300}${font GE Inspira:pixelsize=42}${time %d} ${voffset -15}${color EAEAEA}${font GE Inspira:pixelsize=22}${time  %B} ${time %Y}${font}${voffset 24}${font GE Inspira:pixelsize=58}${offset -148}${time %A}${font}
 ${voffset 1}${offset 12}${font Ubuntu:pixelsize=12}${color FFA300}HD ${offset 9}$color${fs_free /} / ${fs_size /}${offset 30}${color FFA300}RAM ${offset 9}$color$mem / $memmax${offset 30}${color FFA300}CPU ${offset 9}$color${cpu cpu0}%
 EOF
 
-mkdir -p "$HOME/.config/autostart"
-
-cat <<EOF > "$HOME/.config/autostart/conky.desktop"
-[Desktop Entry]
-Type=Application
-Name=Conky Gotham
-Comment=Start Conky Theme directly
-# O comando abaixo espera 10s e carrega especificamente o arquivo Gotham
-Exec=sh -c "sleep 10 && conky -c $THEME_DIR/Gotham"
-Icon=conky
-X-GNOME-Autostart-enabled=true
-Hidden=false
-NoDisplay=false
-EOF
-
-
-sudo add-apt-repository ppa:tomtomtom/conky-manager -y
-sudo add-apt-repository --remove ppa:teejee2008/ppa -y
-sudo apt update -y
-sudo apt install conky-manager2 -y
+echo ""
+echo "========================================================"
+echo "   INSTALAÇÃO CONCLUÍDA COM SUCESSO!"
+echo "========================================================"
+echo "1. Abra o menu do Zorin e procure por 'Conky Manager'."
+echo "2. Na lista de temas, marque a caixinha 'Gotham'."
+echo "3. Vá nas configurações do Conky Manager (ícone engrenagem)"
+echo "   e ative 'Run Conky at system startup'."
+echo "========================================================"
 
 
 
@@ -860,4 +846,6 @@ sleep 5
 busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart("Restarting...")' 2>/dev/null
 
 echo -e "${YELLOW}>>> Lembrar de que alguns aplicativos são melhores instalados pela web e alguns precisam configurar${NC}"
+echo -e "${YELLOW}- HIDAMARI: Selecione \"Iniciar com o computador\" e ative a opção.${NC}"
+echo -e "${YELLOW}- CONKY: ative 'Run Conky at system startup' ${NC}"
 echo -e "${YELLOW}IMPORTANTE: Faça LOGOFF e LOGIN para aplicar todas as mudanças visuais.${NC}"vs
