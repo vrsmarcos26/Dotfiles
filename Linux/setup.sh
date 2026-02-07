@@ -226,6 +226,7 @@ fi
 
 echo -e "${GREEN}Atualizações automáticas configuradas.${NC}"
 
+: << 'COMENTARIO'
 # ==============================================================================
 # 🧠 2.1 DETECÇÃO E INSTALAÇÃO DE HARDWARE (A MÁGICA)
 # ==============================================================================
@@ -246,7 +247,6 @@ else
     echo "Fabricante de CPU desconhecido ($CPU_VENDOR). Pulando microcode."
 fi
 
-: << 'COMENTARIO'
 # --- DETECÇÃO DE PLACA DE VÍDEO (GPU) ---
 # lspci lista o hardware, grep filtra VGA/3D controller
 GPU_INFO=$(lspci | grep -i -E "vga|3d")
@@ -513,7 +513,7 @@ gsettings set org.gnome.shell.extensions.zorin-taskbar trans-use-custom-opacity 
 # Opacidade personalizada (transparente 0.0 = 0%, 1.0 = 100%)
 gsettings set org.gnome.shell.extensions.zorin-taskbar trans-panel-opacity 0.0
 # Posição da barra (BOTTOM, TOP, LEFT, RIGHT)
-# gsettings set org.gnome.shell.extensions.zorin-taskbar panel-positions 'BOTTOM'
+# gsettings set org.gnome.shell.extensions.zorin-taskbar panel-positions '{"0":"BOTTOM"}'
 # Tamanho dos ícones (Pequeno = 24, Médio = 37, Grande = 40)
 gsettings set org.gnome.shell.extensions.zorin-taskbar panel-sizes '{"0":37}'
 # Usar 100% da barra
@@ -532,27 +532,30 @@ gsettings set org.gnome.shell.extensions.zorin-taskbar panel-element-positions '
 ]}'
 
 TTHEME_FILE="/usr/share/themes/ZorinBlue-Dark/gnome-shell/gnome-shell.css"
-# Fallback se não achar no caminho específico
-if [ ! -f "$THEME_FILE" ]; then THEME_FILE="/usr/share/gnome-shell/theme/gnome-shell.css"; fi
 
-CUSTOM_CSS="
+# # Fallback se não achar no caminho específico
+if [ ! -f "$TTHEME_FILE" ]; then
+    TTHEME_FILE="/usr/share/gnome-shell/theme/gnome-shell.css"
+fi
+
+if [ -f "$TTHEME_FILE" ]; then
+    if ! grep -q "CUSTOMIZACAO DO MARCOS" "$TTHEME_FILE"; then
+        echo "Aplicando Transparência no Tema..."
+        sudo cp "$TTHEME_FILE" "$TTHEME_FILE.bak"
+
+        sudo tee -a "$TTHEME_FILE" > /dev/null <<'EOF'
+
 /* --- CUSTOMIZACAO DO MARCOS --- */
 .popup-menu-content {
-    background-color: rgba(34, 43, 48, 0.45) \!important;
+    background-color: rgba(34, 43, 48, 0.45) !important;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
 }
-#mode-dark .popup-menu-content, 
-.popup-menu-content.panel-menu {
-     background-color: rgba(34, 43, 48, 0.45) \!important;
-}
-"
 
-if [ -f "$THEME_FILE" ]; then
-    if ! grep -q "CUSTOMIZACAO DO MARCOS" "$THEME_FILE"; then
-        echo "Aplicando Transparência no Tema..."
-        sudo cp "$THEME_FILE" "$THEME_FILE.bak"
-        # Adiciona o CSS no final do arquivo
-        echo -e "$CUSTOM_CSS" | sudo tee -a "$THEME_FILE" > /dev/null
+#mode-dark .popup-menu-content,
+.popup-menu-content.panel-menu {
+    background-color: rgba(34, 43, 48, 0.45) !important;
+}
+EOF
     fi
 fi
 
