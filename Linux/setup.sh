@@ -513,7 +513,7 @@ gsettings set org.gnome.shell.extensions.zorin-taskbar trans-use-custom-opacity 
 # Opacidade personalizada (transparente 0.0 = 0%, 1.0 = 100%)
 gsettings set org.gnome.shell.extensions.zorin-taskbar trans-panel-opacity 0.0
 # Posição da barra (BOTTOM, TOP, LEFT, RIGHT)
-# gsettings set org.gnome.shell.extensions.zorin-taskbar panel-positions '{"0":"BOTTOM"}'
+gsettings set org.gnome.shell.extensions.zorin-taskbar panel-positions '{"0":"BOTTOM"}'
 # Tamanho dos ícones (Pequeno = 24, Médio = 37, Grande = 40)
 gsettings set org.gnome.shell.extensions.zorin-taskbar panel-sizes '{"0":37}'
 # Usar 100% da barra
