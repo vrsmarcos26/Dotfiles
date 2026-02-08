@@ -62,7 +62,6 @@ echo "5. CLIQUE EM 'CRIAR' PARA FAZER O SNAPSHOT DE AGORA!"
 echo "================================================================="
 echo ""
 
-: << 'COMENTARIO'
 while true; do
     read -p "Você configurou o TimeShift e criou o Snapshot inicial? (DIGITE 'SIM' PARA CONTINUAR): " sn
     case $sn in
@@ -70,7 +69,6 @@ while true; do
         * ) echo "Por favor, configure o TimeShift primeiro.";;
     esac
 done
-COMENTARIO
 
 echo ">>> Continuando instalação..."
 
@@ -89,6 +87,9 @@ if ! command -v ufw &> /dev/null; then
 elif sudo ufw status | grep -q "Status: inactive"; then
     echo "Ativando Firewall..."
     sudo ufw enable
+    sudo ufw default deny incoming
+    sudo ufw default allow outgoing
+    echo -e "${GREEN}Firewall já está ativo e configurado.${NC}"
 else
     echo Configurando Firewall...
     sudo ufw default deny incoming
@@ -119,6 +120,7 @@ echo -e "${YELLOW}Configurando limpeza automática...${NC}"
 if gsettings get org.gnome.desktop.privacy remember-recent-files | grep -q "false"; then
     echo "Ativando histórico"
     gsettings set org.gnome.desktop.privacy remember-recent-files true
+    gsettings set org.gnome.desktop.privacy recent-files-max-age -1
 else
   echo "Histórico já está ativo. Deixando ele para sempre"
   gsettings set org.gnome.desktop.privacy recent-files-max-age -1
@@ -128,6 +130,7 @@ if gsettings get org.gnome.desktop.privacy remove-old-temp-files | grep -q "fals
     echo "Ativando remoção automática de arquivos..."
     gsettings set org.gnome.desktop.privacy remove-old-temp-files true
     gsettings set org.gnome.desktop.privacy remove-old-trash-files true
+    gsettings set org.gnome.desktop.privacy old-files-age 30
 else
     echo "Remoção automática de arquivos já ativada. COnfigurando para 30 dias..."
     gsettings set org.gnome.desktop.privacy old-files-age 30
@@ -226,7 +229,6 @@ fi
 
 echo -e "${GREEN}Atualizações automáticas configuradas.${NC}"
 
-: << 'COMENTARIO'
 # ==============================================================================
 # 🧠 2.1 DETECÇÃO E INSTALAÇÃO DE HARDWARE (A MÁGICA)
 # ==============================================================================
@@ -281,7 +283,6 @@ elif echo "$GPU_INFO" | grep -qi "intel"; then
     sudo apt install -y intel-media-driver mesa-vulkan-drivers mesa-utils
 fi
 
-COMENTARIO
 # ==============================================================================
 # 2. CONFIGURAÇÃO DO GRUB
 # ==============================================================================
@@ -474,9 +475,9 @@ gsettings set org.gnome.desktop.interface clock-show-weekday false
 # Ativando Efeitos Cube & Spatial Window Switcher (Alt+Tab 3D)
 echo "Ativando efeitos 3D..."
 # Cube
-#gnome-extensions enable zorin-desktop-cube@zorinos.com
+gnome-extensions enable zorin-desktop-cube@zorinos.com
 # Spatial Window Switcher
-#gnome-extensions enable zorin-spatial-window-switcher@zorinos.com
+gnome-extensions enable zorin-spatial-window-switcher@zorinos.com
 
 # Luz Noturna
 echo "Configurando Luz Noturna..."
@@ -886,5 +887,10 @@ busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta
 
 echo -e "${YELLOW}>>> Lembrar de que alguns aplicativos são melhores instalados pela web e alguns precisam configurar${NC}"
 echo -e "${YELLOW}- HIDAMARI: Selecione \"Iniciar com o computador\" e ative a opção.${NC}"
+echo "Pode acontecer de quando você abrir o Hidamari ele tirar a tela de fundo, porém basta rodar esse comando novamente, ou colocar manual em configurações:"
+echo "gsettings set org.gnome.desktop.background picture-uri-dark "file:///$HOME/.local/share/backgrounds/white.png""
 echo -e "${YELLOW}- CONKY: ative 'Run Conky at system startup' ${NC}"
+echo -e "${YELLOW}- Caso queira colocar o OpenRGB para iniciar com o sistema: flatpak run org.openrgb.OpenRGB --startminimized --profile "SEU-PROFILE.orp" &${NC}"
+echo -e "${YELLOW}- Para configurar os Icons dos Web Apps, basta editar o arquivo .desktop criado em ~/.local/share/applications/WebApp-NOME.desktop e alterar a linha Icon= para o caminho do ícone desejado.${NC}"
+echo "Ou no app Web Apps, coloque icons de própria web."
 echo -e "${YELLOW}IMPORTANTE: Faça LOGOFF e LOGIN para aplicar todas as mudanças visuais.${NC}"vs
