@@ -444,8 +444,8 @@ echo -e "${YELLOW}>>> Configurando visual...${NC}"
 
 # Instalando o fastfetch
 echo "Instalando Fastfetch..."
-sudo add-apt-repository ppa:zhangsongcui3371/fastfetch
-sudo apt update
+sudo add-apt-repository ppa:zhangsongcui3371/fastfetch -y
+sudo apt update -y
 sudo apt install fastfetch -y
 
 echo -e "\n# Iniciando Fastfetch\nfastfetch --logo-type kitty --logo-padding 3" | tee -a ~/.bashrc
@@ -635,7 +635,9 @@ sudo apt install conky-all -y
 sudo add-apt-repository ppa:tomtomtom/conky-manager -y
 sudo add-apt-repository --remove ppa:teejee2008/ppa -y
 sudo apt update -y
-sudo apt install conky-manager2
+sudo apt install conky-manager2 -y
+
+conky-manager2 & sleep 5 && killall conky-manager2
 
 THEME_DIR="$HOME/.conky/Gotham"
 mkdir -p "$THEME_DIR"
@@ -681,6 +683,8 @@ TEXT
 ${voffset 10}${color EAEAEA}${font GE Inspira:pixelsize=120}${time %I:%M}${font}${voffset -84}${offset 10}${color FFA300}${font GE Inspira:pixelsize=42}${time %d} ${voffset -15}${color EAEAEA}${font GE Inspira:pixelsize=22}${time  %B} ${time %Y}${font}${voffset 24}${font GE Inspira:pixelsize=58}${offset -148}${time %A}${font}
 ${voffset 1}${offset 12}${font Ubuntu:pixelsize=12}${color FFA300}HD ${offset 9}$color${fs_free /} / ${fs_size /}${offset 30}${color FFA300}RAM ${offset 9}$color$mem / $memmax${offset 30}${color FFA300}CPU ${offset 9}$color${cpu cpu0}%
 EOF
+
+sh "$HOME/.conky/conky-startup.sh"
 
 echo ""
 echo "========================================================"
