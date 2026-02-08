@@ -684,6 +684,18 @@ ${voffset 10}${color EAEAEA}${font GE Inspira:pixelsize=120}${time %I:%M}${font}
 ${voffset 1}${offset 12}${font Ubuntu:pixelsize=12}${color FFA300}HD ${offset 9}$color${fs_free /} / ${fs_size /}${offset 30}${color FFA300}RAM ${offset 9}$color$mem / $memmax${offset 30}${color FFA300}CPU ${offset 9}$color${cpu cpu0}%
 EOF
 
+cat <<'EOF' > "$HOME/.conky/conky-startup.sh"
+#!/bin/sh
+
+if [ "$DESKTOP_SESSION" = "zorin-xorg" ]; then 
+   sleep 10s
+   killall conky
+   cd "$HOME/.conky/Gotham"
+   conky -c "$HOME/.conky/Gotham/Gotham" &
+   exit 0
+fi
+EOF
+
 sh "$HOME/.conky/conky-startup.sh"
 
 echo ""
