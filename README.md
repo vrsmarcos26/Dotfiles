@@ -116,14 +116,25 @@ Unblock-File -Path .\setup_completo.ps1
 
 ## 🐧 Linux Setup
 
-🚧 **Status: Em Desenvolvimento**
 
-A seção Linux conterá scripts Bash para automatizar ambientes baseados em Debian (Ubuntu/Kali Linux), com foco em:
+### 1. Preparação
 
-- Instalação de ferramentas de Pentest e Desenvolvimento (Zsh, Docker, BurpSuite, etc.)  
-- Configuração de dotfiles (`.zshrc`, `.vimrc`, `.tmux.conf`)  
+Abra o terminal na pasta onde clonou o repositório.
 
-Fique atento às próximas atualizações!
+*⚠️ Atenção: Não execute como root (`sudo ./setup.sh`). O script pedirá a senha quando necessário para garantir que as configurações do usuário (`$HOME`) não sejam quebradas.*
+
+### 2. Execução
+
+```bash
+git clone https://github.com/vrsmarcos26/Dotfiles.git
+cd dotfiles/Linux
+chmod +x setup.sh
+./setup.sh
+```
+
+### 3. Pós-Instalação
+
+Após o script reiniciar a interface gráfica, leia o guia `Configuracoes-Manuais-Linux.md` para ativar o Hidamari, Conky e logar nos serviços.
 
 ---
 
@@ -145,7 +156,24 @@ winget search "NomeDoPrograma"
 
 ## 🐧 Como Personalizar (Linux)
 
-🚧 **Status: Em Desenvolvimento**
+O script foi criado para ser flexível e fácil de modificar.
+
+1. Abra `Linux/setup.sh`.
+2. Localize as listas de programas no início do script.
+3. Para encontrar o ID Flatpak de um novo software, execute:
+
+```bash
+flatpak search "NomeDoPrograma"
+```
+
+4. Adicione o ID encontrado à lista correspondente, mantendo o formato entre aspas.
+
+### Modularidade
+
+O script é modular. Você pode comentar seções inteiras (ex: `# COMENTE EFEITOS 3D`) caso esteja rodando em uma Máquina Virtual ou PC com recursos limitados.
+
+---
+
 
 Sempre olhar os sites:
 
