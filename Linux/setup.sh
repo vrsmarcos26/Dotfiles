@@ -314,11 +314,15 @@ ICE_ICONS="$HOME/.local/share/ice/icons"
 ICE_PROFILES="$HOME/.local/share/ice/profiles"
 mkdir -p "$ICE_ICONS"
 mkdir -p "$ICE_PROFILES"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+SOURCE_ICONS="$SCRIPT_DIR/icons-web-apps/"
 
 create_isolated_webapp() {
-    NAME="$1"       # Ex: TryHackMe
-    URL="$2"        # Ex: https://tryhackme.com
-    ICON_FILE="$3"  # Ex: tryhackme.png (Nome do arquivo na sua pasta Icons)
+    local NAME="$1"       # Ex: TryHackMe
+    local URL="$2"        # Ex: https://tryhackme.com
+    local ICON_FILE="$3"  # Ex: tryhackme.png (Nome do arquivo na sua pasta Icons)
+
+    local NAME_SLUG="${NAME// /-}"
 
     # Identifica o Navegador (Brave > Chrome > Chromium)
     if command -v brave-browser &> /dev/null; then
@@ -355,12 +359,12 @@ Version=1.0
 Name=$NAME
 Comment=Web App Isolado
 # O comando Mágico: --user-data-dir cria o isolamento
-Exec=$BROWSER_EXEC --app="$URL" --class=WebApp-$NAME --name=WebApp-$NAME --user-data-dir=$PROFILE_DIR
+Exec=$BROWSER_EXEC --app="$URL" --class=WebApp-$NAME_SLUG --name=WebApp-$NAME_SLUG --user-data-dir=$PROFILE_DIR
 Terminal=false
 Type=Application
 Icon=$FINAL_ICON_PATH
 Categories=GTK;Network;WebBrowser;
-StartupWMClass=WebApp-$NAME
+StartupWMClass=WebApp-$NAME_SLUG
 StartupNotify=true
 X-WebApp-Browser=$BROWSER_NAME
 X-WebApp-URL=$URL
@@ -370,10 +374,10 @@ EOF
     chmod +x "$DESKTOP_FILE"
 }
 
-create_isolated_webapp "TryHackMe" "https://tryhackme.com"
-create_isolated_webapp "Hack The Box" "https://www.hackthebox.com"
-create_isolated_webapp "HackingClub" "https://app.hackingclub.com"
-create_isolated_webapp "Notion" "https://notion.so"
+create_isolated_webapp "Hack The Box" "https://www.hackthebox.com" "HackTheBox.png"
+create_isolated_webapp "TryHackMe" "https://tryhackme.com" "TryHackMe.png"
+create_isolated_webapp "HackingClub" "https://app.hackingclub.com" "HackingClub.png"
+create_isolated_webapp "Notion" "https://notion.so" "Notion.png"
 
 echo -e "${GREEN}Web Apps criados na pasta de aplicações!${NC}"
 
