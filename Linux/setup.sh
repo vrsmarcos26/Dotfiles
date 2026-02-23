@@ -402,6 +402,7 @@ APPS_FLATPAK=(
     # Lazeres
     "com.spotify.Client"                # Spotify
     "com.discordapp.Discord"            # Discord
+	"ru.linux_gaming.PortProton"		# Proton para jogar
 
     # Dev
     "com.google.AndroidStudio"          # Android Studio
