@@ -403,6 +403,9 @@ APPS_FLATPAK=(
     "com.spotify.Client"                # Spotify
     "com.discordapp.Discord"            # Discord
 	"ru.linux_gaming.PortProton"		# Proton para jogar
+	"com.valvesoftware.Steam"			# Steam
+	"net.lutris.Lutris"					# Lutris
+	"com.heroicgameslaucher.hgl"		# Heroic
 
     # Dev
     "com.google.AndroidStudio"          # Android Studio
