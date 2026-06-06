@@ -214,9 +214,9 @@ winget source reset --force
 winget source update
 winget --version
 
-Instalar-Lista "SEGURANCA" $AppsSecurity
-Instalar-Lista "DESENVOLVIMENTO" $AppsDev
-Instalar-Lista "LAZER" $AppsLazer
+Instalar-Lista "GERAL" $AppsGeral
+Instalar-Lista "MEDIA" $AppsMedia
+Instalar-Lista "LAZER" $AppsGames
 
 # Instalação do Office Dedicada
 Instalar-Office
