@@ -305,6 +305,11 @@ Write-Host "`n Lembrando que algumas coisas podem nao funcionar de cara, reinici
 # ⚙️ WINDOWS UPDATE & OTIMIZACAO
 # ==============================================================================
 Write-Host "Configurando Windows Update..."
+
+# Impedir o Windows Update de baixar e substituir drivers de vídeo/hardware automaticamente
+Write-Host "Bloqueando atualizacao automatica de drivers pelo Windows..."
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "SearchOrderConfig" -Value 0 -Force
+
 # Atualizar outros produtos Microsoft (Office etc) - Requer criação de chave se não existir
 if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Services\Default")) {
     New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Services\Default" -Force | Out-Null
