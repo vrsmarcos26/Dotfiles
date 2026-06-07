@@ -30,7 +30,7 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
 $AppsGeral = @(
     "Brave.Brave",                   # Navegador Principal
     "RARLab.WinRAR",                 # Compactador (Pedido)
-    "TranslucentTB.TranslucentTB",   # Barra transparente (Pedido)
+    #"TranslucentTB.TranslucentTB",   # Barra transparente (Pedido)
     "WhatsApp.WhatsApp"
 )
 
