@@ -322,6 +322,11 @@ Write-Host "Configurando Windows Update..."
 if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Services\Default")) {
     New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Services\Default" -Force | Out-Null
 }
+
+# Impedir o Windows Update de baixar e substituir drivers de vídeo/hardware automaticamente
+Write-Host "Bloqueando atualizacao automatica de drivers pelo Windows..."
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "SearchOrderConfig" -Value 0 -Force
+
 # Otimização de Entrega: Permitir downloads da Rede Local (LAN) - 1 = LAN
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" -Name "DODownloadMode" -Value 1 -ErrorAction SilentlyContinue
 
