@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Script de Setup Automático - Perfil CyberSec & Dev
+    Script de Setup Automático - Perfil Pessoa comum
     Autor: vrsmarcos26
     
 .DESCRIPTION
@@ -336,7 +336,6 @@ Stop-Process -Name explorer -Force
 Start-Sleep -s 2
 
 Write-Host "`nSETUP DE APPS CONCLUIDO!" -ForegroundColor Green
-Write-Host "Nota: O Docker e o Android Studio podem exigir logoff."
 
 Write-Host "Atualizando programas pre-existentes..." -ForegroundColor Blue
 winget upgrade --all --include-unknown --accept-source-agreements --silent
