@@ -1,8 +1,13 @@
 # 📋 Configurações Manuais & Sincronização
 
+> **⚠️ AVISO SOBRE PERFIS DE INSTALAÇÃO:**
+> Este documento reflete as configurações do **Setup Pessoal Completo (Perfil 2)** ou do **Modo Customizado (Perfil 3)**. 
+> Se você utilizou o **Setup Minimalista (Perfil 1)**, pule as seções 3 (Automação/Backup) e 3.1 (Estilização Glass), pois esses módulos não foram instalados para poupar recursos da máquina.
+
 Este documento serve como um **checklist** para as etapas que não podem ser automatizadas via script (login, sincronização de nuvem e ajustes finos de segurança).
 
 ---
+
 
 ## ☁️ 1. Sincronização e Login
 

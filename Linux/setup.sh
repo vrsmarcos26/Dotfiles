@@ -405,7 +405,7 @@ APPS_FLATPAK=(
 	"ru.linux_gaming.PortProton"		# Proton para jogar
 	"com.valvesoftware.Steam"			# Steam
 	"net.lutris.Lutris"					# Lutris
-	"com.heroicgameslaucher.hgl"		# Heroic
+	"com.heroicgameslauncher.hgl"		# Heroic
 
     # Dev
     "com.google.AndroidStudio"          # Android Studio

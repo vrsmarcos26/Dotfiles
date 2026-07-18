@@ -190,6 +190,14 @@ if ($Adapters) {
     }
 }
 
+# 2.2 --- REVERSÃO DO WINDOWS UPDATE E OTIMIZAÇÃO ---
+Write-Host "Revertendo bloqueio de drivers via Windows Update..." -ForegroundColor Yellow
+# Volta o SearchOrderConfig para 1 (Padrão de fábrica: Permitir baixar drivers)
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "SearchOrderConfig" -Value 1 -Force -ErrorAction SilentlyContinue
+
+# Remove a política de Otimização de Entrega para voltar ao padrão
+Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" -Name "DODownloadMode" -ErrorAction SilentlyContinue
+
 # 3. Reverte Configurações do Windows (Padrão de Fábrica)
 Write-Host "Revertendo configuracoes do Explorer e Tema..."
 
