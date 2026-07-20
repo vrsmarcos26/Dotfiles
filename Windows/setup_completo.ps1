@@ -73,7 +73,7 @@ function Instalar-Lista ($NomeLista, $ArrayApps) {
     foreach ($AppID in $ArrayApps) {
         Write-Host "Instalando $AppID..." -ForegroundColor Yellow
         # Tenta instalar ou atualizar se jA existir
-        winget install --id $AppID -e --accept-source-agreements --accept-package-agreements --silent
+        winget install --id $AppID -e --source winget --accept-source-agreements --accept-package-agreements --silent
     }
 }
 
