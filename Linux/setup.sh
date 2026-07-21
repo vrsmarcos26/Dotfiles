@@ -902,3 +902,10 @@ echo -e "${YELLOW}- Caso queira colocar o OpenRGB para iniciar com o sistema: fl
 echo -e "${YELLOW}- Para configurar os Icons dos Web Apps, basta editar o arquivo .desktop criado em ~/.local/share/applications/WebApp-NOME.desktop e alterar a linha Icon= para o caminho do ícone desejado.${NC}"
 echo "Ou no app Web Apps, coloque icons de própria web."
 echo -e "${YELLOW}IMPORTANTE: Faça LOGOFF e LOGIN para aplicar todas as mudanças visuais.${NC}"vs
+
+# ==============================================================================
+# LIMPEZA PROFUNDA DE SISTEMA
+# ==============================================================================
+echo -e "${YELLOW}>>> Realizando limpeza final de pacotes...${NC}"
+sudo apt autoremove -y && sudo apt clean
+flatpak uninstall --unused -y
