@@ -390,6 +390,9 @@ APPS_APT=(
     "git" "curl" "wget" "python3-pip" "build-essential" "dbus-x11"
     "gamemode"                # GameMode
     "gnome-tweaks"            # GNOME Tweaks
+    "golang-go"     # Linguagem Go
+    "php-cli"       # Linguagem PHP (Terminal/CLI)
+    "nmap" "wireshark" "sqlite3" # Ferramentas Base CyberSec
 
 )
 
@@ -896,12 +899,12 @@ busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta
 echo -e "${YELLOW}>>> Lembrar de que alguns aplicativos são melhores instalados pela web e alguns precisam configurar${NC}"
 echo -e "${YELLOW}- HIDAMARI: Selecione \"Iniciar com o computador\" e ative a opção.${NC}"
 echo "Pode acontecer de quando você abrir o Hidamari ele tirar a tela de fundo, porém basta rodar esse comando novamente, ou colocar manual em configurações:"
-echo "gsettings set org.gnome.desktop.background picture-uri-dark "file:///$HOME/.local/share/backgrounds/white.png""
+echo 'gsettings set org.gnome.desktop.background picture-uri-dark "file:///$HOME/.local/share/backgrounds/white.png"'
 echo -e "${YELLOW}- CONKY: ative 'Run Conky at system startup' ${NC}"
 echo -e "${YELLOW}- Caso queira colocar o OpenRGB para iniciar com o sistema: flatpak run org.openrgb.OpenRGB --startminimized --profile "SEU-PROFILE.orp" &${NC}"
 echo -e "${YELLOW}- Para configurar os Icons dos Web Apps, basta editar o arquivo .desktop criado em ~/.local/share/applications/WebApp-NOME.desktop e alterar a linha Icon= para o caminho do ícone desejado.${NC}"
 echo "Ou no app Web Apps, coloque icons de própria web."
-echo -e "${YELLOW}IMPORTANTE: Faça LOGOFF e LOGIN para aplicar todas as mudanças visuais.${NC}"vs
+echo -e "${YELLOW}IMPORTANTE: Faça LOGOFF e LOGIN para aplicar todas as mudanças visuais.${NC}"
 
 # ==============================================================================
 # LIMPEZA PROFUNDA DE SISTEMA
