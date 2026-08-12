@@ -54,7 +54,7 @@ verificar_timeshift() {
     while true; do
         read -p "Voce configurou o TimeShift e criou o Snapshot inicial? (SIM para continuar): " sn
         case $sn in
-            [Ss]*| ) break;;
+            [Ss]*|"" ) break;;
             * ) echo "Por favor configure o TimeShift primeiro.";;
         esac
     done
