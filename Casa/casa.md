@@ -139,3 +139,38 @@ Este documento centraliza as diretrizes para construir um ambiente físico intel
   * **Categoria:** Cocção Segura e Rápida
   * **O que faz:** Aquece panelas na metade do tempo e não gera chamas.
   * **Atenção Técnica:** Puxa muita energia (até 7000W). **Nunca** tentar plugar em tomadas inteligentes. O monitoramento elétrico dele deve ser feito exclusivamente pelas garras "CT Clamp" lá no quadro de disjuntores (Fase 2).
+
+  ---
+
+## 🧰 FASE 6: Arsenal de Instalação e Manutenção Pessoal
+*O kit definitivo para executar o projeto em casa com segurança (NR-10) e praticidade extrema, sem depender de eletricistas para tarefas básicas.*
+
+- [ ] **Detector de Tensão (Caneta) e Multímetro Digital**
+  * **Categoria:** Segurança de Vida
+  * **Prioridade:** 0 (Máxima - Não abra uma tomada sem isso)
+  * **O que faz:** Identifica qual fio é a "Fase" (que dá choque) e qual é o "Retorno" ou "Neutro". A caneta detecta energia só de encostar no fio (sem precisar descascar). O multímetro mede se a tomada é 110V ou 220V para não queimar aparelhos.
+  * **Especificações para compra:** Caneta Detectora de Tensão por Aproximação (NCV) com bipe sonoro. Multímetro digital básico (com bipe de continuidade).
+
+- [ ] **Conectores de Engate Rápido (O fim da fita isolante)**
+  * **Categoria:** Instalação Rápida e Segura
+  * **Prioridade:** 1 (Alta)
+  * **O que faz:** Substitui emendas de fios enrolados com fita isolante (que ressecam, dão mau contato e podem causar incêndio). Você apenas levanta a alavanquinha, insere o fio e abaixa. Conexão perfeita em 2 segundos.
+  * **Especificações para compra:** Conectores originais da marca **WAGO (Linha 221)**. Compre um pequeno kit com conectores de 2, 3 e 5 vias.
+
+- [ ] **Kit de Chaves Isoladas (Fenda e Philips)**
+  * **Categoria:** Ferramentas Manuais
+  * **Prioridade:** 1 (Alta)
+  * **O que faz:** Essenciais para soltar os parafusos dos espelhos de tomada e fixar os interruptores inteligentes na parede.
+  * **Especificações para compra:** Exija chaves com cabo e haste emborrachados com **Certificação 1000V (Isolamento NR-10)**. Se a chave esbarrar sem querer no fio vivo da parede, você não toma choque.
+
+- [ ] **Alicate Desencapador Automático**
+  * **Categoria:** Praticidade / Otimização de Tempo
+  * **Prioridade:** 2 (Média)
+  * **O que faz:** Em vez de usar faca ou tesoura (o que corta os fios de cobre e enfraquece a energia), você coloca o fio na ponta desse alicate e aperta. Ele corta a capa plástica do fio na medida perfeita em 1 segundo.
+  * **Especificações para compra:** Modelo tipo "Frontal" (geralmente com cabo amarelo ou vermelho e regulagem de pressão). 
+
+- [ ] **Fita Dupla Face de Alta Performance**
+  * **Categoria:** Fixação Invisível
+  * **Prioridade:** 2 (Média)
+  * **O que faz:** Usada para colar os Sensores de Porta/Janela, Sensores de Presença mmWave e os Motores de Persiana sem precisar furar a parede com furadeira.
+  * **Especificações para compra:** Fita **3M VHB** (autêntica). É a única que aguenta o calor e a umidade sem despencar o seu sensor no chão de madrugada.
